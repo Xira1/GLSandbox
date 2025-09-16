@@ -114,14 +114,21 @@
     <ClInclude Include="src\Types\Skybox.hpp" />
     <ClInclude Include="src\Util.hpp" />
     <ClInclude Include="src\Types\Texture.h" />
+    <ClInclude Include="src\World\WorldGrid.hpp" />
     <ClInclude Include="vendor\stb_image\stb_image.h" />
     <ClInclude Include="vendor\stb_image\stb_image_write.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="res\shaders\OpenGL\GL_grid.vert" />
     <None Include="res\shaders\OpenGL\GL_skybox.frag" />
     <None Include="res\shaders\OpenGL\GL_skybox.vert" />
-    <None Include="res\shaders\OpenGL\gl_solid_color.frag" />
-    <None Include="res\shaders\OpenGL\gl_solid_color.vert" />
+    <None Include="res\shaders\OpenGL\GL_solid_color.frag" />
+    <None Include="res\shaders\OpenGL\GL_solid_color.vert" />
+    <None Include="res\shaders\OpenGL\GL_texture_sample.frag" />
+    <None Include="res\shaders\OpenGL\GL_texture_sample.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="res\shaders\OpenGL\GL_grid.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

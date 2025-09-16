@@ -39,7 +39,7 @@ struct CubemapTexture {
 
 struct Skybox {
 
-	GLuint vao = 0;
+	GLuint VAO = 0;
 	CubemapTexture cubemap;
 
 	void Init() {
@@ -56,10 +56,10 @@ struct Skybox {
 		std::vector<glm::vec3> cubeVertices = Primitives::CreateCubeVertices(0.5f);
 		std::vector<unsigned int> cubeIndices = Primitives::CreateCubeIndices();
 		unsigned int cubeVbo, cubeEbo;
-		glGenVertexArrays(1, &vao);
+		glGenVertexArrays(1, &VAO);
 		glGenBuffers(1, &cubeVbo);
 		glGenBuffers(1, &cubeEbo);
-		glBindVertexArray(vao);
+		glBindVertexArray(VAO);
 		glBindBuffer(GL_ARRAY_BUFFER, cubeVbo);
 		glBufferData(GL_ARRAY_BUFFER, cubeVertices.size() * sizeof(glm::vec3), &cubeVertices[0], GL_STATIC_DRAW);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeEbo);

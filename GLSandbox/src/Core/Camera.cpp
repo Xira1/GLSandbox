@@ -13,7 +13,7 @@ namespace Camera {
 
 	void Init(GLFWwindow* window) {
 		g_window = window;
-		g_transform.position = glm::vec3(0.0f, 0.0f, 5.0f);
+		g_transform.position = glm::vec3(0.0f, 2.0f, 5.0f);
 		g_transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 		double x, y;
 		glfwGetCursorPos(g_window, &x, &y);

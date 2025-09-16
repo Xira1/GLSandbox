@@ -1,7 +1,14 @@
 #version 460 core
 
-out vec4 FragColor;
+layout (location = 0) out vec4 FragColor;
+
+in vec3 Color;
+
+uniform vec4 uniformColor;
 
 void main() {
-    FragColor = vec4(0.0, 1.0, 1.0, 1.0); 
+    FragColor.rgb = Color;
+    FragColor.a = 1.0;
+
+    FragColor = uniformColor;    
 }
