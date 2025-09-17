@@ -81,6 +81,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\API\OpenGL\Types\GL_framebuffer.cpp" />
+    <ClCompile Include="src\Player\Player.cpp" />
     <ClCompile Include="src\Types\GameObject.cpp" />
     <ClCompile Include="src\Engine.cpp" />
     <ClCompile Include="src\API\OpenGL\GL_renderer.cpp" />
@@ -97,6 +98,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\API\OpenGL\Types\GL_framebuffer.h" />
+    <ClInclude Include="src\Player\Player.h" />
     <ClInclude Include="src\Types\GameObject.h" />
     <ClInclude Include="src\Engine.h" />
     <ClInclude Include="src\API\OpenGL\GL_renderer.h" />

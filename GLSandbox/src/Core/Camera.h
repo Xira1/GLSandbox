@@ -21,3 +21,27 @@ namespace Camera {
 	glm::vec3 GetUp();
 }
 
+
+// TODO: rewrite Camera struct
+// 
+//struct CameraStruct {
+//public:
+//	void Update();
+//	void SetPosition(glm::vec3 position);
+//	void SetRotation(glm::vec3 rotation);
+//	const float GetPitch() const { return m_rotation.x; }
+//	const float GetYaw() const { return m_rotation.y; }
+//
+//private:
+//	glm::vec3 m_position = glm::vec3(0.0f);
+//	glm::vec3 m_rotation = glm::vec3(0.0f);
+//	glm::quat m_rotationQ = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+//	glm::mat4 m_viewMatrix = glm::mat4(1.0f);
+//	glm::vec3 m_forward = glm::vec3(0.0f, 0.0f, 1.0f);
+//	glm::vec3 m_forwardXZ = glm::vec3(0.0f, 0.0f, 1.0f);
+//	glm::vec3 m_up = glm::vec3(0.0f, 1.0f, 0.0f);
+//	glm::vec3 m_right = glm::vec3(1.0f, 0.0f, 0.0f);
+//	glm::mat4 m_inverseViewMatrix = glm::mat4(1.0f);
+//	float minPitch = -1.5;
+//	float maxPitch = 1.5;
+//};

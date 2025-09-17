@@ -110,7 +110,7 @@ namespace OpenGLRenderer {
 		g_shaders.gridShader.SetVec3("uCameraPosition", Camera::GetViewPos());
 		g_shaders.gridShader.SetVec2("uResolution", glm::vec2(OpenGLBackend::GetWindowWidth(), OpenGLBackend::GetWindowHeight()));
 		g_shaders.gridShader.SetVec3("uGridColor", glm::vec3(0.6f));
-		g_shaders.gridShader.SetFloat("uGridSize", 0.5f);
+		g_shaders.gridShader.SetFloat("uGridSize", 0.3f);
 		g_shaders.gridShader.SetFloat("uMajorFactor", 10.0f);
 
 		glBindVertexArray(g_grid.VAO);
