@@ -69,7 +69,9 @@ namespace OpenGLBackend {
 			glfwSetWindowPos(g_window, 0, 0);
 			glViewport(0, 0, g_currentWindowWidth, g_currentWindowHeight);
 		}
-		else if (windowedMode == WindowedMode::FULLSCREEN) {
+		
+		
+		if (windowedMode == WindowedMode::FULLSCREEN) {
 			g_currentWindowWidth = g_fullscreenWidth;
 			g_currentWindowHeight = g_fullscreenHeight;
 			glfwSetWindowMonitor(g_window, g_monitor, 0, 0, g_fullscreenWidth, g_fullscreenHeight, g_mode->refreshRate);

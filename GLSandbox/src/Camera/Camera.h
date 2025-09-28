@@ -8,10 +8,18 @@
 #define FAR_PLANE 1000.0f
 
 namespace Camera {
+	extern enum class CameraMode { FIRST_PERSON, THIRD_PERSON };
+	extern CameraMode g_cameraMode;
+	extern glm::vec3 g_playerPos;
+
 	void Init(GLFWwindow* window);
 	void Update(float deltaTime);
+	void SwitchCameraMode();
 	glm::mat4 GetProjectionMatrix();
 	glm::mat4 GetViewMatrix();
+	glm::mat4 GetViewMatrixPlayer();
+	glm::vec3 GetLookDirection();
+	glm::vec3 GetEyePosition();
 	glm::mat4 GetInverseViewMatrix();
 	glm::vec3 GetViewPos();
 	Transform GetTransform();
@@ -19,11 +27,13 @@ namespace Camera {
 	glm::vec3 GetForward();
 	glm::vec3 GetRight();
 	glm::vec3 GetUp();
+	glm::vec3 GetPlayerPos();
+	CameraMode GetCameraMode();
 }
 
 
 // TODO: rewrite Camera struct
-// 
+
 //struct CameraStruct {
 //public:
 //	void Update();

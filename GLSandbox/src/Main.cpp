@@ -3,7 +3,7 @@
 #include "../API/OpenGL/GL_backend.h"
 #include "../API/OpenGL/GL_renderer.h"
 #include "Input/Input.h"
-#include "Core/Camera.h"
+#include "Camera/Camera.h"
 #include "Types.h"
 
 void Init(const std::string& title) {

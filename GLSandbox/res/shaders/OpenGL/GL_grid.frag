@@ -2,14 +2,13 @@
 
 uniform vec3 uCameraPosition;
 uniform vec3 uGridColor;
-uniform float uGridSize;       // базовый шаг мелкой сетки
-uniform float uMajorFactor;    // каждые N шагов — крупная сетка
+uniform float uGridSize;       
+uniform float uMajorFactor;    
 uniform mat4 uInverseViewProjection;
 uniform vec2 uResolution;
 
 out vec4 FragColor;
 
-// Преобразуем экранные координаты в мировой мир
 vec3 WorldPos(vec2 uv, mat4 invViewProj) {
     vec4 clip = vec4(uv * 2.0 - 1.0, 0.0, 1.0);
     vec4 world = invViewProj * clip;
@@ -44,7 +43,7 @@ void main() {
 
     float distance = length(groundPos - uCameraPosition);
     float fadeStart = 30.0;
-    float fadeEnd = 60.0;
+    float fadeEnd = 120.0;
     float fade = smoothstep(fadeEnd, fadeStart, distance);
 
     alphaSmall *= fade;

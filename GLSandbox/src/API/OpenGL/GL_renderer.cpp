@@ -4,7 +4,7 @@
 #include "Types/GL_framebuffer.h"
 #include "Types/GL_texture.h"
 #include "../../Util.hpp"
-#include "../Core/Camera.h"
+#include "../Camera/Camera.h"
 #include "../Types/Skybox.hpp"
 #include "../API/OpenGL/GL_backend.h"
 #include "../API/OpenGL/Types/GL_detachedMesh.hpp"
@@ -12,6 +12,7 @@
 
 namespace OpenGLRenderer {
 	OpenGLDetachedMesh cubeMesh;
+	OpenGLDetachedMesh cubeMeshPlayer;
 
 	struct Shaders {
 		Shader skybox;
@@ -30,11 +31,16 @@ namespace OpenGLRenderer {
 	void RenderSkyBox();
 	void RenderCube();
 	void RenderGrid();
+	void RenderCubePlayer();
 
 	void Init() {
 		std::vector<Vertex> cubeVert = Cube::GetVertices();
 		std::vector<uint32_t> cubeInd = Cube::GetIndices(); 
 		cubeMesh.UpdateVertexBuffer(cubeVert, cubeInd);
+
+		std::vector<Vertex> cubeVertPlayer = Cube::GetVertices();
+		std::vector<uint32_t> cubeIndPlayer = Cube::GetIndices();
+		cubeMeshPlayer.UpdateVertexBuffer(cubeVertPlayer, cubeIndPlayer);
 		
 		g_grid.Init();
 		g_skybox.Init();
@@ -50,12 +56,26 @@ namespace OpenGLRenderer {
 		RenderSkyBox();
 		RenderGrid();
 		RenderCube();
-
-		int width, height;
-		glfwGetWindowSize(OpenGLBackend::GetWindowPtr(), &width, &height);
+		RenderCubePlayer();
 
 		glfwSwapBuffers(OpenGLBackend::GetWindowPtr());
 		glfwPollEvents();
+	}
+
+	void RenderCubePlayer() {
+		glEnable(GL_DEPTH_TEST);
+		Transform player;
+		player.position = Camera::GetPlayerPos();
+		player.scale = glm::vec3(0.3f);
+
+		g_shaders.solidColor.Use();
+		g_shaders.solidColor.SetVec4("uniformColor", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+		g_shaders.solidColor.SetMat4("view", Camera::GetViewMatrixPlayer());
+		g_shaders.solidColor.SetMat4("projection", Camera::GetProjectionMatrix());
+		g_shaders.solidColor.SetMat4("model", player.to_mat4());
+
+		glBindVertexArray(cubeMeshPlayer.GetVAO());
+		glDrawElements(GL_TRIANGLES, cubeMeshPlayer.GetIndexCount(), GL_UNSIGNED_INT, 0);
 	}
 
 	void RenderCube() {
@@ -68,7 +88,7 @@ namespace OpenGLRenderer {
 		Transform c;
 		c.position = glm::vec3(0.0f, 2.0f, 0.0f);
 		c.rotation = glm::vec3(glfwGetTime() / PI);
-		g_shaders.textureShader.SetMat4("view", Camera::GetViewMatrix());
+		g_shaders.textureShader.SetMat4("view", Camera::GetViewMatrixPlayer());
 		g_shaders.textureShader.SetMat4("projection", Camera::GetProjectionMatrix());
 		g_shaders.textureShader.SetMat4("model", c.to_mat4());
 
@@ -87,7 +107,7 @@ namespace OpenGLRenderer {
 		g_shaders.skybox.Use();
 		g_shaders.skybox.SetInt("skybox", 0);
 		g_shaders.skybox.SetFloat("darknessFactor", 0.3f);
-		g_shaders.skybox.SetMat4("view", Camera::GetViewMatrix());
+		g_shaders.skybox.SetMat4("view", Camera::GetViewMatrixPlayer());
 		g_shaders.skybox.SetMat4("projection", Camera::GetProjectionMatrix());
 
 		glDepthFunc(GL_LEQUAL);
@@ -104,13 +124,13 @@ namespace OpenGLRenderer {
 
 		g_shaders.gridShader.Use();
 
-		glm::mat4 invViewProj = glm::inverse(Camera::GetProjectionMatrix() * Camera::GetViewMatrix());
+		glm::mat4 invViewProj = glm::inverse(Camera::GetProjectionMatrix() * Camera::GetViewMatrixPlayer());
 
 		g_shaders.gridShader.SetMat4("uInverseViewProjection", invViewProj);
 		g_shaders.gridShader.SetVec3("uCameraPosition", Camera::GetViewPos());
 		g_shaders.gridShader.SetVec2("uResolution", glm::vec2(OpenGLBackend::GetWindowWidth(), OpenGLBackend::GetWindowHeight()));
-		g_shaders.gridShader.SetVec3("uGridColor", glm::vec3(0.6f));
-		g_shaders.gridShader.SetFloat("uGridSize", 0.3f);
+		g_shaders.gridShader.SetVec3("uGridColor", glm::vec3(0.5f));
+		g_shaders.gridShader.SetFloat("uGridSize", 0.2f);
 		g_shaders.gridShader.SetFloat("uMajorFactor", 10.0f);
 
 		glBindVertexArray(g_grid.VAO);
