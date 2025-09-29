@@ -81,7 +81,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\API\OpenGL\Types\GL_framebuffer.cpp" />
+    <ClCompile Include="src\AssetManagement\AssetManager.cpp" />
     <ClCompile Include="src\Camera\Viewer.cpp" />
+    <ClCompile Include="src\Importer\AssimpImporter.cpp" />
     <ClCompile Include="src\Player\Player.cpp" />
     <ClCompile Include="src\Types\GameObject.cpp" />
     <ClCompile Include="src\Engine.cpp" />
@@ -99,7 +101,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\API\OpenGL\Types\GL_framebuffer.h" />
+    <ClInclude Include="src\AssetManagement\AssetManager.h" />
     <ClInclude Include="src\Camera\Viewer.h" />
+    <ClInclude Include="src\Importer\AssimpImporter.h" />
     <ClInclude Include="src\Player\Player.h" />
     <ClInclude Include="src\Types\GameObject.h" />
     <ClInclude Include="src\Engine.h" />

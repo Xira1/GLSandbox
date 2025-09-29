@@ -38,6 +38,9 @@ void Render() {
 
 int main()
 {
+	/*std::string a = "res/models/donut.obj";
+	std::cout << Util::GetFileName(a);*/
+
     Init("Sandbox");
     glfwSwapInterval(1);
 
