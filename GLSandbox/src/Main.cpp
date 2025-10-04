@@ -1,15 +1,22 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include "../API/OpenGL/GL_backend.h"
-#include "../API/OpenGL/GL_renderer.h"
+#include "API/OpenGL/GL_backend.h"
+#include "API/OpenGL/GL_renderer.h"
+#include "AssetManagement/AssetManager.h"
 #include "Input/Input.h"
 #include "Camera/Camera.h"
+#include "Core/Scene.hpp"
 #include "Types.h"
+
+#include "Util.hpp"
 
 void Init(const std::string& title) {
     OpenGLBackend::Init(title);
+    AssetManager::Init();
+    Scene::Init();
     Input::Init(OpenGLBackend::GetWindowPtr());
     Camera::Init(OpenGLBackend::GetWindowPtr());
+    Scene::CreateGameObjects();
     OpenGLRenderer::Init();
 }
 
@@ -19,8 +26,10 @@ void Update() {
     double currentTime = glfwGetTime();
     deltaTime = static_cast<float>(currentTime - lastTime);
     lastTime = currentTime;
+    AssetManager::Update();
     Input::Update();
     Camera::Update(deltaTime);
+    Scene::Update(deltaTime);
     if (Input::KeyPressed(GLFW_KEY_ESCAPE)) {
         glfwSetWindowShouldClose(OpenGLBackend::GetWindowPtr(), true);
     }
@@ -36,11 +45,13 @@ void Render() {
     OpenGLRenderer::RenderFrame();
 }
 
+void Clear() {
+    AssetManager::ShutdownThread();
+    OpenGLBackend::Cleanup();
+}
+
 int main()
 {
-	/*std::string a = "res/models/donut.obj";
-	std::cout << Util::GetFileName(a);*/
-
     Init("Sandbox");
     glfwSwapInterval(1);
 
@@ -49,6 +60,6 @@ int main()
         Render();
     }
 
-    OpenGLBackend::Cleanup();
+    Clear();
     return 0;
 }

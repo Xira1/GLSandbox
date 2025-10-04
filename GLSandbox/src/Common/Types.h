@@ -29,19 +29,10 @@ struct Vertex {
 		tangent = _tangent;
 	}
 
-	Vertex(glm::vec3 pos, glm::vec3 norm, glm::vec2 texCoord, glm::vec3 _tangent, glm::vec3 _bitangent) {
-		position = pos;
-		normal = norm;
-		uv = texCoord;
-		tangent = _tangent;
-		bitangent = _bitangent;
-	}
-
 	glm::vec3 position = glm::vec3(0);
 	glm::vec3 normal = glm::vec3(0);
 	glm::vec2 uv = glm::vec2(0);
 	glm::vec3 tangent = glm::vec3(0);
-	glm::vec3 bitangent = glm::vec3(0);
 };
 
 struct Transform {
@@ -54,5 +45,28 @@ struct Transform {
 		m = glm::scale(m, scale);
 
 		return m;
+	}
+};
+
+struct RenderItem {
+	glm::mat4 modelMatrix;
+	int meshIndex;
+	int baseColorTextureIndex;
+	int normalColorTextureIndex;
+	int rmaColorTextureIndex;
+};
+
+struct FileInfo {
+	std::string path;
+	std::string name;
+	std::string ext;
+	std::string dir;
+	std::string GetFileNameWithExtension() {
+		if (ext.length() > 0) {
+			return name + "." + ext;
+		}
+		else {
+			return name;
+		}
 	}
 };

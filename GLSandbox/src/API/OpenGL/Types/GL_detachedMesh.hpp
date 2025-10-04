@@ -11,20 +11,22 @@ private:
     unsigned int VBO = 0;
     unsigned int VAO = 0;
     unsigned int EBO = 0;
+   
     std::string m_name;
 
 public:
+	glm::vec3 aabbMin = glm::vec3(std::numeric_limits<float>::min());
+	glm::vec3 aabbMax = glm::vec3(-std::numeric_limits<float>::max());
+
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
 
     void SetName(const std::string& name) {
         m_name = name;
     }
-
     std::string& GetName() {
         return m_name;
     }
-
     int GetVertexCount() {
         return vertices.size();
     }

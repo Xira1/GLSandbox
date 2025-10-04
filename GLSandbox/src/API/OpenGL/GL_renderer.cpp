@@ -3,15 +3,16 @@
 #include "Types/GL_shader.h"
 #include "Types/GL_framebuffer.h"
 #include "Types/GL_texture.h"
-#include "../../Util.hpp"
+#include "../AssetManagement/AssetManager.h"
 #include "../Camera/Camera.h"
 #include "../Types/Skybox.hpp"
 #include "../API/OpenGL/GL_backend.h"
 #include "../API/OpenGL/Types/GL_detachedMesh.hpp"
 #include "../World/WorldGrid.hpp"
+#include "../Core/Scene.hpp"
+#include "../../Util.hpp"
 
 namespace OpenGLRenderer {
-	OpenGLDetachedMesh cubeMesh;
 	OpenGLDetachedMesh cubeMeshPlayer;
 
 	struct Shaders {
@@ -29,24 +30,20 @@ namespace OpenGLRenderer {
 	Grid g_grid;
 
 	void RenderSkyBox();
-	void RenderCube();
 	void RenderGrid();
 	void RenderCubePlayer();
+	void RenderScene();
 
 	void Init() {
-		std::vector<Vertex> cubeVert = Cube::GetVertices();
-		std::vector<uint32_t> cubeInd = Cube::GetIndices(); 
-		cubeMesh.UpdateVertexBuffer(cubeVert, cubeInd);
-
 		std::vector<Vertex> cubeVertPlayer = Cube::GetVertices();
 		std::vector<uint32_t> cubeIndPlayer = Cube::GetIndices();
 		cubeMeshPlayer.UpdateVertexBuffer(cubeVertPlayer, cubeIndPlayer);
-		
-		g_grid.Init();
-		g_skybox.Init();
 
 		LoadTextures();
 		LoadShaders();
+
+		g_grid.Init();
+		g_skybox.Init();
 	}
 
 	void RenderFrame() {
@@ -55,11 +52,22 @@ namespace OpenGLRenderer {
 
 		RenderSkyBox();
 		RenderGrid();
-		RenderCube();
 		RenderCubePlayer();
+		RenderScene();
 
 		glfwSwapBuffers(OpenGLBackend::GetWindowPtr());
 		glfwPollEvents();
+	}
+
+	void RenderScene() {
+		for (RenderItem& renderItem : Scene::GetRenderItems()) {
+			OpenGLDetachedMesh* mesh = AssetManager::GetMeshByIndex(renderItem.meshIndex);
+			if (mesh) {
+				g_shaders.textureShader.SetMat4("model", renderItem.modelMatrix);
+				glBindVertexArray(mesh->GetVAO());
+				glDrawElements(GL_TRIANGLES, mesh->GetIndexCount(), GL_UNSIGNED_INT, 0);
+			}
+		}
 	}
 
 	void RenderCubePlayer() {
@@ -69,7 +77,7 @@ namespace OpenGLRenderer {
 		player.scale = glm::vec3(0.3f);
 
 		g_shaders.solidColor.Use();
-		g_shaders.solidColor.SetVec4("uniformColor", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+		g_shaders.solidColor.SetVec4("uniformColor", glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
 		g_shaders.solidColor.SetMat4("view", Camera::GetViewMatrixPlayer());
 		g_shaders.solidColor.SetMat4("projection", Camera::GetProjectionMatrix());
 		g_shaders.solidColor.SetMat4("model", player.to_mat4());
@@ -78,29 +86,9 @@ namespace OpenGLRenderer {
 		glDrawElements(GL_TRIANGLES, cubeMeshPlayer.GetIndexCount(), GL_UNSIGNED_INT, 0);
 	}
 
-	void RenderCube() {
-		glEnable(GL_DEPTH_TEST);
-
-		g_shaders.textureShader.Use();
-		g_textures.cubeTexture.Bind(0);
-		g_shaders.textureShader.SetInt("textureSampler", 0);
-
-		Transform c;
-		c.position = glm::vec3(0.0f, 2.0f, 0.0f);
-		c.rotation = glm::vec3(glfwGetTime() / PI);
-		g_shaders.textureShader.SetMat4("view", Camera::GetViewMatrixPlayer());
-		g_shaders.textureShader.SetMat4("projection", Camera::GetProjectionMatrix());
-		g_shaders.textureShader.SetMat4("model", c.to_mat4());
-
-		glBindVertexArray(cubeMesh.GetVAO());
-		glDrawElements(GL_TRIANGLES, cubeMesh.GetIndexCount(), GL_UNSIGNED_INT, 0);
-
-		glDisable(GL_DEPTH_TEST);
-	}
-
 	void RenderSkyBox() {
 		glDisable(GL_DEPTH_TEST);
-		
+
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, g_skybox.cubemap.ID);
 
@@ -142,13 +130,15 @@ namespace OpenGLRenderer {
 	}
 
 	void LoadTextures() {
+		std::cout << "\n";
 		g_textures.cubeTexture.LoadFromFile("res/textures/wall.jpg");
+		g_textures.cubeTexture.LoadFromFile("res/textures/rock_texture.png");
 	}
 
 	void LoadShaders() {
 		if (g_shaders.solidColor.Load({ "GL_solid_color.vert", "GL_solid_color.frag" }) &&
 			g_shaders.skybox.Load({ "GL_skybox.vert", "GL_skybox.frag" }) &&
-			g_shaders.textureShader.Load({ "GL_texture_sample.vert", "GL_texture_sample.frag"}) &&
+			g_shaders.textureShader.Load({ "GL_texture_sample.vert", "GL_texture_sample.frag" }) &&
 			g_shaders.gridShader.Load({ "GL_grid.vert", "GL_grid.frag" }) /**/) {
 			std::cout << "Shaders load succesfully\n";
 		}
