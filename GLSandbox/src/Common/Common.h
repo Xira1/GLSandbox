@@ -10,6 +10,7 @@
 #include <queue>
 #include <condition_variable>
 #include <functional>
+#include <fstream>
 
 #include <algorithm>
 #include <numeric>
@@ -26,18 +27,23 @@
 
 #include "Types.h"
 
-#define ORANGE  glm::vec3(1, 0.647f, 0)
-#define BLACK   glm::vec3(0, 0, 0)
-#define WHITE   glm::vec3(1, 1, 1)
-#define RED     glm::vec3(1, 0, 0)
-#define GREEN   glm::vec3(0, 1, 0)
-#define BLUE    glm::vec3(0, 0, 1)
-#define YELLOW  glm::vec3(1, 1, 0)
-#define PURPLE  glm::vec3(1, 0, 1)
-#define GREY    glm::vec3(0.25f)
-#define LIGHT_BLUE    glm::vec3(0, 1, 1)
-#define LIGHT_GREEN   glm::vec3(0.16f, 0.78f, 0.23f)
-#define LIGHT_RED     glm::vec3(0.8f, 0.05f, 0.05f)
+#define PINK                glm::vec4(0.98f, 0.06f, 0.75f, 1.0f)
+#define ORANGE              glm::vec4(1.00f, 0.65f, 0.00f, 1.0f)
+#define BLACK               glm::vec4(0.00f, 0.00f, 0.00f, 1.0f)
+#define WHITE               glm::vec4(1.00f, 1.00f, 1.00f, 1.0f)
+#define RED                 glm::vec4(1.00f, 0.00f, 0.00f, 1.0f)
+#define GREEN               glm::vec4(0.00f, 1.00f, 0.00f, 1.0f)
+#define BLUE                glm::vec4(0.00f, 0.00f, 1.00f, 1.0f)
+#define YELLOW              glm::vec4(1.00f, 1.00f, 0.00f, 1.0f)
+#define PURPLE              glm::vec4(1.00f, 0.00f, 1.00f, 1.0f)
+#define GREY                glm::vec4(0.25f, 0.25f, 0.25f, 1.0f)
+#define LIGHT_BLUE          glm::vec4(0.00f, 1.00f, 1.00f, 1.0f)
+#define LIGHT_GREEN         glm::vec4(0.16f, 0.78f, 0.23f, 1.0f)
+#define LIGHT_RED           glm::vec4(0.80f, 0.05f, 0.05f, 1.0f)
+#define TRANSPARENT         glm::vec4(0.00f, 0.00f, 0.00f, 0.0f)
+#define GRID_COLOR          glm::vec4(0.50f, 0.50f, 0.60f, 1.0f)
+#define OUTLINE_COLOR       glm::vec4(1.00f, 0.50f, 0.00f, 0.0f)
+#define DEFAULT_LIGHT_COLOR glm::vec4(1.00f, 0.7799999713897705f, 0.5289999842643738f, 1.0f)
 
 #define PI 3.14159265359f
 

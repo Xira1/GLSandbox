@@ -4,6 +4,9 @@
 #include "GLFW/glfw3.h"
 #include "Common.h"
 
+#include "Types/GL_texture.h"
+#include "../Types/Texture.h"
+
 enum class WindowedMode { WINDOWED, FULLSCREEN };
 
 namespace OpenGLBackend {
@@ -18,6 +21,12 @@ namespace OpenGLBackend {
 	int GetWindowHeight();
 	void SwapBuffersPollEvents();
 	GLFWwindow* GetWindowPtr();
+
+	// Textures
+	void AllocateTextureMemory(Texture& texture);
+	void ImmediateBake(QueuedTextureBake& queuedTextureBake);
+	void UpdateTextureBaking();
+	void AsyncBakeQueuedTextureBake(QueuedTextureBake& queuedTextureBake);
 
 	void Cleanup();
 }

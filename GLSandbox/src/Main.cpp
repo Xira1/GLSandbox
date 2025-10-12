@@ -26,6 +26,8 @@ void Update() {
     double currentTime = glfwGetTime();
     deltaTime = static_cast<float>(currentTime - lastTime);
     lastTime = currentTime;
+    OpenGLBackend::UpdateTextureBaking();
+    Scene::SetMaterials();
     AssetManager::Update();
     Input::Update();
     Camera::Update(deltaTime);
@@ -46,7 +48,6 @@ void Render() {
 }
 
 void Clear() {
-    AssetManager::ShutdownThread();
     OpenGLBackend::Cleanup();
 }
 

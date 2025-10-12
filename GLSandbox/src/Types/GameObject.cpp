@@ -19,26 +19,42 @@ void GameObject::SetSize(glm::vec3 size) {
 }
 
 void GameObject::SetModel(const std::string& name) {
-	Model* model = AssetManager::GetModelByName(name);
+	m_model = AssetManager::GetModelByIndex(AssetManager::GetModelIndexByName(name.c_str()));
 
-	if (model) {
-		m_model = model;
+	if (m_model) {
 		m_meshMaterialIndices.resize(m_model->GetMeshCount());
 		std::fill(m_meshMaterialIndices.begin(), m_meshMaterialIndices.end(), -1);
 	}
 	else {
-		PendingModel pending;
-		pending.onLoaded = [this](Model* loadedModel) {
-			if (loadedModel->GetName() == m_name) {
-				this->m_model = loadedModel;
-				this->m_meshMaterialIndices.resize(m_model->GetMeshCount(), -1);
+		std::cout << "Failed to set model '" << name << "', it does not exist.\n";
+	}
+
+}
+
+void GameObject::SetMeshMaterialByMeshName(std::string meshName, const char* materialName) {
+	int materialIndex = AssetManager::GetMaterialIndex(materialName);
+	if (m_model && materialIndex != -1) {
+		for (int i = 0; i < m_model->GetMeshCount(); i++) {
+			if (AssetManager::GetMeshByIndex(m_model->GetMeshIndices()[i])->GetName() == meshName) {
+				m_meshMaterialIndices[i] = materialIndex;
+				return;
 			}
-		};
+		}
+	}
+	if (!m_model) {
+		std::cout << "Tried to call SetMeshMaterialByMeshName() but this GameObject has a nullptr m_model\n";
+	}
+	else if (materialIndex == -1) {
+		std::cout << "Tried to call SetMeshMaterialByMeshName() but the material index was -1\n";
+	}
+	else {
+		std::cout << "Tried to call SetMeshMaterialByMeshName() but the meshName '" << meshName << "' not found\n";
 	}
 }
 
 void GameObject::UpdateRenderItems() {
 	m_renderItems.clear();
+
 	if (m_model) {
 		for (int i = 0; i < m_model->GetMeshCount(); i++) {
 			OpenGLDetachedMesh* mesh = AssetManager::GetMeshByIndex(m_model->GetMeshIndices()[i]);
@@ -46,19 +62,26 @@ void GameObject::UpdateRenderItems() {
 				RenderItem renderItem;
 				renderItem.modelMatrix = m_transform.to_mat4();
 				renderItem.meshIndex = m_model->GetMeshIndices()[i];
+				Material* material = AssetManager::GetMaterialByIndex(m_meshMaterialIndices[i]);
+				if (material) {
+					renderItem.baseColorTextureIndex = material->m_baseColor;
+					renderItem.normalColorTextureIndex = material->m_normal;
+					renderItem.rmaColorTextureIndex = material->m_rma;
+				}
 				m_renderItems.push_back(renderItem);
 			}
 		}
 	}
 }
 
+
 void GameObject::PrintMeshNames() {
 	if (m_model) {
-		std::cout << m_model->GetName() << "\n";
+		std::cout << "\nModel name: " + m_model->GetName() << "\n";
 		for (uint32_t meshIndex : m_model->GetMeshIndices()) {
 			OpenGLDetachedMesh* mesh = AssetManager::GetMeshByIndex(meshIndex);
 			if (mesh) {
-				std::cout << "-" << meshIndex << ": " << mesh->GetName() << "\n";
+				std::cout << "Mesh index " << "- " << meshIndex << ": " << mesh->GetName() << "\n";
 			}
 		}
 	}

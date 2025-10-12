@@ -47,16 +47,25 @@
     <OutDir>$(SolutionDir)\$(ProjectName)\Build\Release\</OutDir>
     <IntDir>$(SolutionDir)\$(ProjectName)\Build\Intermediate\Release\</IntDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)\$(ProjectName)\Build\Debug\</OutDir>
+    <IntDir>$(SolutionDir)\$(ProjectName)\Build\Intermediate\Debug\</IntDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>vendor\GLFW\include;vendor\compressonator\include\;vendor\gli\include;src\Common;vendor\glad\include;vendor\glm;vendor\stb_image;vendor\assimp\include;vendor;vendor\tinyexr;vendor\fmod\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <SupportJustMyCode>true</SupportJustMyCode>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>vendor\assimp\lib;vendor\GLFW\lib\Debug;vendor\compressonator\lib;vendor\fmod\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;Compressonator_MD.lib;CMP_Framework_MD.lib;assimp-vc143-mt.lib;fmod_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -80,9 +89,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\API\OpenGL\Types\GL_framebuffer.cpp" />
     <ClCompile Include="src\AssetManagement\AssetManager.cpp" />
+    <ClCompile Include="src\AssetManagement\BakeQueue\BakeQueue.cpp" />
     <ClCompile Include="src\Camera\Viewer.cpp" />
+    <ClCompile Include="src\Types\TextureTools\TextureTools.cpp" />
     <ClCompile Include="src\Importer\AssimpImporter.cpp" />
     <ClCompile Include="src\Player\Player.cpp" />
     <ClCompile Include="src\Types\GameObject.cpp" />
@@ -100,9 +110,16 @@
     <ClCompile Include="vendor\tinyexr\tinyexr.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\API\OpenGL\Types\GL_framebuffer.h" />
+    <ClInclude Include="src\API\OpenGL\Types\GL_framebuffer.hpp" />
+    <ClInclude Include="src\API\OpenGL\Types\GL_pbo.hpp" />
+    <ClInclude Include="src\API\OpenGL\Utils\GL_utils.hpp" />
     <ClInclude Include="src\AssetManagement\AssetManager.h" />
+    <ClInclude Include="src\AssetManagement\BakeQueue\BakeQueue.h" />
     <ClInclude Include="src\Camera\Viewer.h" />
+    <ClInclude Include="src\Common\CreateInfo.h" />
+    <ClInclude Include="src\Common\Enums.h" />
+    <ClInclude Include="src\Types\TextureTools\DDS.h" />
+    <ClInclude Include="src\Types\TextureTools\TextureTools.h" />
     <ClInclude Include="src\Importer\AssimpImporter.h" />
     <ClInclude Include="src\Player\Player.h" />
     <ClInclude Include="src\Types\GameObject.h" />
@@ -132,8 +149,8 @@
     <None Include="res\shaders\OpenGL\GL_skybox.vert" />
     <None Include="res\shaders\OpenGL\GL_solid_color.frag" />
     <None Include="res\shaders\OpenGL\GL_solid_color.vert" />
-    <None Include="res\shaders\OpenGL\GL_texture_sample.frag" />
-    <None Include="res\shaders\OpenGL\GL_texture_sample.vert" />
+    <None Include="res\shaders\OpenGL\GL_light.frag" />
+    <None Include="res\shaders\OpenGL\GL_light.vert" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\shaders\OpenGL\GL_grid.frag" />

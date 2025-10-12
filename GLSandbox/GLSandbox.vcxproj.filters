@@ -54,9 +54,6 @@
     <ClCompile Include="src\Types\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\API\OpenGL\Types\GL_framebuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Player\Player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -67,6 +64,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\AssetManagement\AssetManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Types\TextureTools\TextureTools.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AssetManagement\BakeQueue\BakeQueue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -128,9 +131,6 @@
     <ClInclude Include="src\Types\Skybox.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\API\OpenGL\Types\GL_framebuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\World\WorldGrid.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -146,15 +146,39 @@
     <ClInclude Include="src\AssetManagement\AssetManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Common\CreateInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Types\TextureTools\DDS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Types\TextureTools\TextureTools.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Common\Enums.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\OpenGL\Utils\GL_utils.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\OpenGL\Types\GL_framebuffer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\OpenGL\Types\GL_pbo.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AssetManagement\BakeQueue\BakeQueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\OpenGL\GL_solid_color.vert" />
     <None Include="res\shaders\OpenGL\GL_solid_color.frag" />
     <None Include="res\shaders\OpenGL\GL_skybox.vert" />
     <None Include="res\shaders\OpenGL\GL_skybox.frag" />
-    <None Include="res\shaders\OpenGL\GL_texture_sample.vert" />
-    <None Include="res\shaders\OpenGL\GL_texture_sample.frag" />
     <None Include="res\shaders\OpenGL\GL_grid.vert" />
+    <None Include="res\shaders\OpenGL\GL_light.vert" />
+    <None Include="res\shaders\OpenGL\GL_light.frag" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\shaders\OpenGL\GL_grid.frag" />

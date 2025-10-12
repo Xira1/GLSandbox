@@ -1,13 +1,13 @@
 #version 460 core
 
+layout (location = 0) out vec4 FragColor;
+
 uniform vec3 uCameraPosition;
 uniform vec3 uGridColor;
 uniform float uGridSize;       
 uniform float uMajorFactor;    
 uniform mat4 uInverseViewProjection;
 uniform vec2 uResolution;
-
-out vec4 FragColor;
 
 vec3 WorldPos(vec2 uv, mat4 invViewProj) {
     vec4 clip = vec4(uv * 2.0 - 1.0, 0.0, 1.0);

@@ -9,6 +9,7 @@ struct CubemapTexture {
 	GLuint ID;
 
 	void Create(std::vector<std::string>& textures) { 
+		stbi_set_flip_vertically_on_load(true);
 		glGenTextures(1, &ID);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, ID);
 		int width, height, nrChannels;
@@ -46,8 +47,8 @@ struct Skybox {
 		std::vector<std::string> skyboxTextureFilePath;
 		skyboxTextureFilePath.push_back("res/textures/skybox/right.png");
 		skyboxTextureFilePath.push_back("res/textures/skybox/left.png");
-		skyboxTextureFilePath.push_back("res/textures/skybox/top.png");
 		skyboxTextureFilePath.push_back("res/textures/skybox/bottom.png");
+		skyboxTextureFilePath.push_back("res/textures/skybox/top.png");
 		skyboxTextureFilePath.push_back("res/textures/skybox/front.png");
 		skyboxTextureFilePath.push_back("res/textures/skybox/back.png");
 

@@ -1,59 +1,44 @@
 #include "GL_texture.h"
 
+#include "DDS/DDS_Helpers.h"
+#include <stb_image.h>
+#include "../Types/TextureTools/TextureTools.h"
+#include "../Utils/GL_utils.hpp"
 
-OpenGLTexture::OpenGLTexture(const std::string& filePath) {
-	LoadFromFile(filePath);
-}
+//void OpenGLTexture::Load(const FileInfo& fileInfo, ImageDataType imageDataType) {
+//
+//}
+//
+//void OpenGLTexture::AllocateTextureMemory(int width, int height, int format, int internalFormat, int mimapLevelCount) {
+//
+//}
 
-void OpenGLTexture::LoadFromFile(const std::string& filePath) {
-	m_filePath = filePath;
-	unsigned char* data = stbi_load(filePath.c_str(), &m_width, &m_height, &m_channelCount, 0);
-
-	if (data) {
-		switch (m_channelCount) {
-		case 1:
-			m_format = GL_RED;
-			break;
-		case 3:
-			m_format = GL_RGB;
-			break;
-		case 4:
-			m_format = GL_RGBA;
-			break;
-		default:
-			m_format = GL_RGB;
-		}
-			
-		glGenTextures(1, &m_handle);
-		glBindTexture(GL_TEXTURE_2D, m_handle);
-		glTexImage2D(GL_TEXTURE_2D, 0, m_format, m_width, m_height, 0, m_format, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		stbi_image_free(data);
-		std::cout << "Loaded texture: " << m_filePath << std::endl;
-	}
-	else {
-		std::cout << "Failed to load texture: " << m_filePath << std::endl;
-		stbi_image_free(data);
-	}
-}
-
-void OpenGLTexture::Bind(int slot) const {
+void OpenGLTexture::Bind(unsigned int slot) {
 	glActiveTexture(GL_TEXTURE0 + slot);
 	glBindTexture(GL_TEXTURE_2D, m_handle);
 }
 
-void OpenGLTexture::Unbind() const {
+GLuint& OpenGLTexture::GetHandle() {
+	return m_handle;
+}
+
+void OpenGLTexture::SetWrapMode(TextureWrapMode wrapMode) {
+	glBindTexture(GL_TEXTURE_2D, m_handle);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, OpenGLUtils::TextureWrapModeToGLEnum(wrapMode));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, OpenGLUtils::TextureWrapModeToGLEnum(wrapMode));
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-GLuint& OpenGLTexture::GetHandle() {
-	return m_handle;
+void OpenGLTexture::SetMinFilter(TextureFilter filter) {
+	glBindTexture(GL_TEXTURE_2D, m_handle);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, OpenGLUtils::TextureFilterToGLEnum(filter));
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void OpenGLTexture::SetMagFilter(TextureFilter filter) {
+	glBindTexture(GL_TEXTURE_2D, m_handle);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, OpenGLUtils::TextureFilterToGLEnum(filter));
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 int OpenGLTexture::GetWidth() {
@@ -62,4 +47,24 @@ int OpenGLTexture::GetWidth() {
 
 int OpenGLTexture::GetHeight() {
 	return m_height;
+}
+
+int OpenGLTexture::GetChannelCount() {
+	return m_channelCount;
+}
+
+void* OpenGLTexture::GetData() {
+	return m_data;
+}
+
+GLint OpenGLTexture::GetFormat() {
+	return m_format;
+}
+
+GLint OpenGLTexture::GetInternalFormat() {
+	return m_internalFormat;
+}
+
+GLsizei OpenGLTexture::GetDataSize() {
+	return m_dataSize;
 }

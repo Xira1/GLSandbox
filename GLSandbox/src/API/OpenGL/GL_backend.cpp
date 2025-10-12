@@ -1,5 +1,10 @@
 #include "GL_backend.h"
 
+#include "../AssetManagement/AssetManager.h"
+#include "Types/GL_pbo.hpp"
+#include "Utils/GL_utils.hpp"
+#include "../AssetManagement/BakeQueue/BakeQueue.h"
+
 namespace OpenGLBackend {
 
 	GLFWwindow* g_window;
@@ -12,6 +17,12 @@ namespace OpenGLBackend {
 	GLuint g_windowedHeight = 0;
 	GLuint g_fullscreenWidth;
 	GLuint g_fullscreenHeight;
+
+	const size_t MAX_TEXTURE_WIDTH = 4096;
+	const size_t MAX_TEXTURE_HEIGHT = 4096;
+	const size_t MAX_CHANNEL_COUNT = 4;
+	const size_t MAX_DATA_SIZE = MAX_TEXTURE_WIDTH * MAX_TEXTURE_HEIGHT * MAX_CHANNEL_COUNT;
+	std::vector<PBO> g_textureBakingPBOs;
 
 	void Init(std::string title) {
 		std::cout << "We go through this life alone, only suffering envelops our days, and we try to make these days better.\n\n";
@@ -28,8 +39,8 @@ namespace OpenGLBackend {
 		glfwWindowHint(GLFW_REFRESH_RATE, g_mode->refreshRate);
 		g_fullscreenWidth = g_mode->width;
 		g_fullscreenHeight = g_mode->height;
-		g_windowedWidth = g_fullscreenWidth * 0.75f;
-		g_windowedHeight = g_fullscreenHeight * 0.75f;
+		g_windowedWidth = g_fullscreenWidth;
+		g_windowedHeight = g_fullscreenHeight;
 		g_window = glfwCreateWindow(g_windowedWidth, g_windowedHeight, title.c_str(), NULL, NULL);
 		if (g_window == NULL) {
 			std::cout << "GLFW window create failed\n";
@@ -48,7 +59,7 @@ namespace OpenGLBackend {
 		const GLubyte* renderer = glGetString(GL_RENDERER);
 
 		std::cout << "GPU: " << renderer << "\n";
-		std::cout << "GL version: " << major << "." << minor << "\n\n";
+		std::cout << "GL version: " << major << "." << minor << "\n";
 
 		glfwSetInputMode(g_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		ToggleFullscreen();
@@ -58,6 +69,10 @@ namespace OpenGLBackend {
 		glClear(GL_COLOR_BUFFER_BIT);
 		SwapBuffersPollEvents();
 
+		for (int i = 0; i < 32; ++i) {
+			PBO& pbo = g_textureBakingPBOs.emplace_back();
+			pbo.Init(MAX_DATA_SIZE);
+		}
 		return;
 	}
 
@@ -69,8 +84,8 @@ namespace OpenGLBackend {
 			glfwSetWindowPos(g_window, 0, 0);
 			glViewport(0, 0, g_currentWindowWidth, g_currentWindowHeight);
 		}
-		
-		
+
+
 		if (windowedMode == WindowedMode::FULLSCREEN) {
 			g_currentWindowWidth = g_fullscreenWidth;
 			g_currentWindowHeight = g_fullscreenHeight;
@@ -129,6 +144,145 @@ namespace OpenGLBackend {
 	GLFWwindow* GetWindowPtr() {
 		return g_window;
 	}
+
+    void AllocateTextureMemory(Texture& texture) {
+        OpenGLTexture& glTexture = texture.GetGLTexture();
+        GLuint& handle = glTexture.GetHandle();
+        if (handle != 0) {
+            return;
+        }
+        glGenTextures(1, &handle);
+        glBindTexture(GL_TEXTURE_2D, handle);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, OpenGLUtils::TextureWrapModeToGLEnum(texture.GetTextureWrapMode()));
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, OpenGLUtils::TextureWrapModeToGLEnum(texture.GetTextureWrapMode()));
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, OpenGLUtils::TextureFilterToGLEnum(texture.GetMinFilter()));
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, OpenGLUtils::TextureFilterToGLEnum(texture.GetMagFilter()));
+        int mipmapWidth = texture.GetWidth(0);
+        int mipmapHeight = texture.GetHeight(0);
+        int levelCount = texture.MipmapsAreRequested() ? texture.GetMipmapLevelCount() : 1;
+        for (int i = 0; i < levelCount; i++) {
+            if (texture.GetImageDataType() == ImageDataType::UNCOMPRESSED) {
+                glTexImage2D(GL_TEXTURE_2D, i, texture.GetInternalFormat(), mipmapWidth, mipmapHeight, 0, texture.GetFormat(), GL_UNSIGNED_BYTE, nullptr);
+            }
+            if (texture.GetImageDataType() == ImageDataType::COMPRESSED) {
+                glCompressedTexImage2D(GL_TEXTURE_2D, i, texture.GetInternalFormat(), mipmapWidth, mipmapHeight, 0, texture.GetDataSize(i), nullptr);
+            }
+            if (texture.GetImageDataType() == ImageDataType::EXR) {
+                // TODO! glTexImage2D(GL_TEXTURE_2D, i, GL_RGB16, mipmapWidth, mipmapHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
+            }
+            mipmapWidth = std::max(1, mipmapWidth / 2);
+            mipmapHeight = std::max(1, mipmapHeight / 2);
+        }
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    void ImmediateBake(QueuedTextureBake& queuedTextureBake) {
+        Texture* texture = static_cast<Texture*>(queuedTextureBake.texture);
+        OpenGLTexture& glTexture = texture->GetGLTexture();
+        int width = queuedTextureBake.width;
+        int height = queuedTextureBake.height;
+        int format = queuedTextureBake.format;
+        int internalFormat = queuedTextureBake.internalFormat;
+        int level = queuedTextureBake.mipmapLevel;
+        int dataSize = queuedTextureBake.dataSize;
+        const void* data = queuedTextureBake.data;
+
+        glBindTexture(GL_TEXTURE_2D, glTexture.GetHandle());
+        if (texture->GetImageDataType() == ImageDataType::UNCOMPRESSED) {
+            glTexImage2D(GL_TEXTURE_2D, level, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        }
+        else if (texture->GetImageDataType() == ImageDataType::EXR) {
+            //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, glTexture.GetWidth(), glTexture.GetHeight(), 0, GL_RGBA, GL_FLOAT, glTexture.GetData());
+        }
+        else if (texture->GetImageDataType() == ImageDataType::COMPRESSED) {
+            glCompressedTexSubImage2D(GL_TEXTURE_2D, level, 0, 0, width, height, internalFormat, dataSize, data);
+        }
+        texture->SetTextureDataLevelBakeState(level, BakeState::BAKE_COMPLETE);
+
+        if (texture->MipmapsAreRequested()) {
+            if (texture->GetTextureDataCount() == 1) {
+                glGenerateMipmap(GL_TEXTURE_2D);
+            }
+        }
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+        BakeQueue::RemoveQueuedTextureBakeByJobID(queuedTextureBake.jobID);
+    }
+
+    void UpdateTextureBaking() {
+        for (int i = 0; i < g_textureBakingPBOs.size(); i++) {
+            for (PBO& pbo : g_textureBakingPBOs) {
+                pbo.UpdatePBOState();
+            }
+            for (PBO& pbo : g_textureBakingPBOs) {
+                uint32_t jobID = pbo.GetCustomValue();
+                if (pbo.IsSyncComplete() && jobID != -1) {
+                    QueuedTextureBake* queuedTextureBake = BakeQueue::GetQueuedTextureByJobID(jobID);
+                    Texture* texture = static_cast<Texture*>(queuedTextureBake->texture);
+                    texture->SetTextureDataLevelBakeState(queuedTextureBake->mipmapLevel, BakeState::BAKE_COMPLETE);
+                    if (texture->MipmapsAreRequested()) {
+                        if (texture->GetTextureDataCount() == 1) {
+                            glBindTexture(GL_TEXTURE_2D, texture->GetGLTexture().GetHandle());
+                            glGenerateMipmap(GL_TEXTURE_2D);
+                            glBindTexture(GL_TEXTURE_2D, 0);
+                        }
+                    }
+                    BakeQueue::RemoveQueuedTextureBakeByJobID(jobID);
+                    pbo.SetCustomValue(-1);
+                }
+            }
+            // Bake next queued bake (should one exist)
+            if (BakeQueue::GetQueuedTextureBakeJobCount() > 0) {
+                QueuedTextureBake* queuedTextureBake = BakeQueue::GetNextQueuedTextureBake();
+                if (queuedTextureBake) {
+                    AsyncBakeQueuedTextureBake(*queuedTextureBake);
+                }
+            }
+        }
+    }
+
+    void AsyncBakeQueuedTextureBake(QueuedTextureBake& queuedTextureBake) {
+        PBO* pbo = nullptr;
+        for (PBO& queryPbo : g_textureBakingPBOs) {
+            if (queryPbo.IsSyncComplete()) {
+                pbo = &queryPbo;
+                break;
+            }
+        }
+        if (!pbo) {
+            return;
+        }
+        queuedTextureBake.inProgress = true;
+
+        Texture* texture = static_cast<Texture*>(queuedTextureBake.texture);
+        int jobID = queuedTextureBake.jobID;
+        int width = queuedTextureBake.width;
+        int height = queuedTextureBake.height;
+        int format = queuedTextureBake.format;
+        int internalFormat = queuedTextureBake.internalFormat;
+        int level = queuedTextureBake.mipmapLevel;
+        int dataSize = queuedTextureBake.dataSize;
+        const void* data = queuedTextureBake.data;
+
+        texture->SetTextureDataLevelBakeState(level, BakeState::BAKING_IN_PROGRESS);
+
+        glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo->GetHandle());
+        std::memcpy(pbo->GetPersistentBuffer(), data, dataSize);
+        glBindTexture(GL_TEXTURE_2D, texture->GetGLTexture().GetHandle());
+
+        if (texture->GetImageDataType() == ImageDataType::UNCOMPRESSED) {
+            glTexSubImage2D(GL_TEXTURE_2D, level, 0, 0, width, height, format, GL_UNSIGNED_BYTE, nullptr);
+        }
+        if (texture->GetImageDataType() == ImageDataType::COMPRESSED) {
+            glCompressedTexSubImage2D(GL_TEXTURE_2D, level, 0, 0, width, height, internalFormat, dataSize, nullptr);
+        }
+        if (texture->GetImageDataType() == ImageDataType::EXR) {
+            //glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, glTexture.GetWidth(), glTexture.GetHeight(), glTexture.GetFormat(), GL_FLOAT, nullptr);
+        }
+        pbo->SyncStart();
+        pbo->SetCustomValue(jobID);
+        glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+    }
 
 	void Cleanup() {
 		glfwTerminate();

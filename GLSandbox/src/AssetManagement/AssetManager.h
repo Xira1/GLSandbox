@@ -2,6 +2,7 @@
 
 #include "Common.h"
 #include "../Types/Model.hpp"
+#include "../Types/Texture.h"
 #include "../Importer/AssimpImporter.h"
 #include "../API/OpenGL/Types/GL_detachedMesh.hpp"
 
@@ -15,9 +16,6 @@ namespace AssetManager {
 	void Init();
 	void Update();
 
-	// Threads
-	void ShutdownThread();
-
 	// Models
 	void LoadModelFromData(Model& model, ModelData& modelData);
 	int GetModelIndexByName(const std::string& name);
@@ -25,11 +23,19 @@ namespace AssetManager {
 	Model* GetModelByIndex(int index);
 	Model* GetModelByName(const std::string& name);
 
-	// TODO: Material
+	// Material
+	int GetMaterialIndex(const std::string& name);
+	std::string& GetMaterialNameByIndex(int index);
+	Material* GetMaterialByIndex(int index);
+	Material* GetDefaultMaterial();
 
 	// TODO: Mesh 
 	int CreateMesh(const std::string& name, std::vector<Vertex>& vertices, std::vector<uint32_t> indices, glm::vec3 aabbMin, glm::vec3 aabbMax);
 	OpenGLDetachedMesh* GetMeshByIndex(int index);
 
-	// TODO: Texture
+	// Textures
+	int GetTextureIndexByName(const std::string& name, bool warning = true);
+	int GetTextureCount();
+	Texture* GetTextureByIndex(int index);
+	Texture* GetTextureByName(const std::string& name);
 }

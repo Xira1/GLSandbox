@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <regex>
+#include "GL_texture.h"
 
 void ParseFile(const std::string& filepath, std::string& outputString, std::vector<std::string>& lineToFile, std::vector<std::string>& includedPaths);
 int GetErrorLineNumber(const std::string& error);

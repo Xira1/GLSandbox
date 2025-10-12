@@ -4,6 +4,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include <iostream>
+#include "Enums.h"
 
 struct Vertex {
 	Vertex() = default;
@@ -56,6 +57,25 @@ struct RenderItem {
 	int rmaColorTextureIndex;
 };
 
+struct Material {
+	Material() {};
+	std::string name = "UNDEFINED";
+	int m_baseColor = 0;
+	int m_normal = 0;
+	int m_rma = 0;
+};
+
+struct TextureData {
+	int m_width = 0;
+	int m_height = 0;
+	int m_channelCount = 0;
+	int m_dataSize = 0;
+	int m_format = 0;
+	int m_internalFormat = 0;
+	void* m_data = nullptr;
+	ImageDataType m_imageDataType;
+};
+
 struct FileInfo {
 	std::string path;
 	std::string name;
@@ -69,4 +89,17 @@ struct FileInfo {
 			return name;
 		}
 	}
+};
+
+struct QueuedTextureBake {
+	void* texture = nullptr;
+	int jobID = 0;
+	int width = 0;
+	int height = 0;
+	int format = 0;
+	int internalFormat = 0;
+	int mipmapLevel = 0;
+	int dataSize = 0;
+	const void* data = nullptr;
+	bool inProgress = false;
 };

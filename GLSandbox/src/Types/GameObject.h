@@ -5,7 +5,7 @@
 
 struct GameObject {
 	std::string m_name;
-	Model* m_model;
+	Model* m_model = nullptr;
 	Transform m_transform;
 	std::vector<int> m_meshMaterialIndices;
 
@@ -14,6 +14,7 @@ struct GameObject {
 	void SetRotation(glm::vec3 rotation);
 	void SetSize(glm::vec3 size);
 	void SetModel(const std::string& name);
+	void SetMeshMaterialByMeshName(std::string meshName, const char* materialName);
 	void PrintMeshNames();
 	void UpdateRenderItems();
 

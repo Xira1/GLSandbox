@@ -70,4 +70,9 @@ namespace Util {
 
 		return fileInfoList;
 	}
+
+	inline bool FileExist(const std::string& filePath) {
+		std::ifstream f(filePath.c_str());
+		return f.good();
+	}
 }

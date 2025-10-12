@@ -1,11 +1,13 @@
 #version 460
  
-uniform samplerCube environmentMap;
-uniform float darknessFactor;
-in vec3 position;
-out vec4 fragOut;
+layout (location = 0) out vec4 FragColor;
 
-void main () {
-    vec4 color = texture(environmentMap, position);
-    fragOut = vec4(color.rgb * darknessFactor, color.a);
+in vec3 TexCoords;
+
+uniform samplerCube skybox;
+uniform float darknessFactor;
+
+void main() { 
+    vec4 color = texture(skybox, TexCoords);
+    FragColor = vec4(color.rgb * darknessFactor, color.a);
 }
