@@ -4,6 +4,7 @@
 #include "../Util.hpp"
 #include "../API/OpenGL/GL_backend.h"
 #include "../Types/TextureTools/TextureTools.h"
+#include "../World/Room/Room.h"
 
 namespace AssetManager {
 	// Thread parts
@@ -42,6 +43,7 @@ namespace AssetManager {
 
 	void Init() {
 		CompressMissingDDSTexutres();
+		HardcodedRoom::LoadHardcodedModelRoom();
 		LoadTextureMinimum();
 		LoadModelsAsync();
 		LoadTexturesAsync();
@@ -206,7 +208,42 @@ namespace AssetManager {
 	██  ██  ██ ██           ██ ██   ██ ██           ██
 	██      ██ ███████ ███████ ██   ██ ███████ ███████*/
 
-	int CreateMesh(const std::string& name, std::vector<Vertex>& vertices, std::vector<uint32_t> indices, glm::vec3 aabbMin, glm::vec3 aabbMax) {
+	int CreateMesh(const std::string& name, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices, glm::vec3 aabbMin, glm::vec3 aabbMax) {
+		OpenGLDetachedMesh& mesh = g_meshes.emplace_back();
+		mesh.SetName(name);
+		mesh.UpdateVertexBuffer(vertices, indices);
+		mesh.aabbMin = aabbMin;
+		mesh.aabbMax = aabbMax;
+		return g_meshes.size() - 1;
+	}
+
+	int CreateMesh(const std::string& name, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices) {
+		glm::vec3 aabbMin = glm::vec3(std::numeric_limits<float>::min());
+		glm::vec3 aabbMax = glm::vec3(-std::numeric_limits<float>::max());;
+		for (int i = 0; i < indices.size(); i += 3) {
+			Vertex* vert0 = &vertices[indices[i]];
+			Vertex* vert1 = &vertices[indices[i + 1]];
+			Vertex* vert2 = &vertices[indices[i + 2]];
+			glm::vec3 deltaPos1 = vert1->position - vert0->position;
+			glm::vec3 deltaPos2 = vert2->position - vert0->position;
+			glm::vec2 deltaUV1 = vert1->uv - vert0->uv;
+			glm::vec2 deltaUV2 = vert2->uv - vert0->uv;
+			float det = (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+			float invDet = 1.0f / det;
+			glm::vec3 tangent = invDet * (-deltaUV2.y * deltaPos1 - deltaUV1.y * deltaPos2);
+			glm::vec3 bitangent = invDet * (-deltaUV2.x * deltaPos1 + deltaUV1.x * deltaPos2);
+			tangent = glm::normalize(tangent);
+			bitangent = glm::normalize(bitangent);
+			vert0->tangent = tangent;
+			vert1->tangent = tangent;
+			vert2->tangent = tangent;
+			aabbMin = Util::Vec3Min(vert0->position, aabbMin);
+			aabbMax = Util::Vec3Max(vert0->position, aabbMax);
+			aabbMin = Util::Vec3Min(vert1->position, aabbMin);
+			aabbMax = Util::Vec3Max(vert1->position, aabbMax);
+			aabbMin = Util::Vec3Min(vert2->position, aabbMin);
+			aabbMax = Util::Vec3Max(vert2->position, aabbMax);
+		}
 		OpenGLDetachedMesh& mesh = g_meshes.emplace_back();
 		mesh.SetName(name);
 		mesh.UpdateVertexBuffer(vertices, indices);

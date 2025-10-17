@@ -97,13 +97,15 @@ namespace OpenGLRenderer {
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
 
+		GameObject* Lattern = Scene::GetGameObjectByName("Lattern");
+
 		g_shaders.light.Use();
 		g_shaders.light.SetMat4("projection", Camera::GetProjectionMatrix());
 		g_shaders.light.SetMat4("view", Camera::GetViewMatrixPlayer());
 		g_shaders.light.SetMat4("model", glm::mat4(1));
 		g_shaders.light.SetVec3("viewPos", Camera::GetViewPos());
-		g_shaders.light.SetVec3("lightPos", glm::vec3(2.0f, 1.0f, 0.0f));
-		g_shaders.light.SetVec3("lightColor", glm::vec3(1.0f, 0.0f, 0.0f));
+		g_shaders.light.SetVec3("lightPos", Lattern->GetModelPosition() + glm::vec3(0.0f, 0.2f, 0.0f));
+		g_shaders.light.SetVec3("lightColor", glm::vec3(1.0f, 0.96f, 0.9f));
 		g_shaders.light.SetFloat("lightIntensity", 1.0f);
 		RenderScene(g_shaders.light);
 	}

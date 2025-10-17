@@ -148,8 +148,8 @@ namespace Camera {
 
 		// Speed factor
 		float speedFactor = 1.0f;
-		if (Input::KeyDown(GLFW_KEY_LEFT_SHIFT)) speedFactor = 0.425f;
-		if (Input::KeyDown(GLFW_KEY_LEFT_ALT)) speedFactor = 2.0f;
+		if (Input::KeyDown(GLFW_KEY_LEFT_SHIFT)) speedFactor = 0.405f;
+		if (Input::KeyDown(GLFW_KEY_LEFT_ALT)) speedFactor = 1.5f;
 
 		// Height speed
 		float heightSpeed = 3.0f;

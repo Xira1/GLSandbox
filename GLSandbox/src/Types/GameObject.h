@@ -17,6 +17,7 @@ struct GameObject {
 	void SetMeshMaterialByMeshName(std::string meshName, const char* materialName);
 	void PrintMeshNames();
 	void UpdateRenderItems();
+	glm::vec3 GetModelPosition();
 
 	std::vector<RenderItem>& GetRendredItems();
 

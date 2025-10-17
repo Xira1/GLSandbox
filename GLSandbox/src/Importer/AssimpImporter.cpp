@@ -79,8 +79,25 @@ ModelData AssimpImporter::ImportModel(const std::string filePath)
 			vert.normal = glm::normalize(vert.normal);
 		}
 
-		// TODO: Generate tangent for models if imported model has no tangent
-
+		// Generate tangent for models if imported model has no tangent
+		for (int i = 0; i < meshData.indices.size(); i += 3) {
+			Vertex* vert0 = &meshData.vertices[meshData.indices[i]];
+			Vertex* vert1 = &meshData.vertices[meshData.indices[i + 1]];
+			Vertex* vert2 = &meshData.vertices[meshData.indices[i + 2]];
+			glm::vec3 deltaPos1 = vert1->position - vert0->position;
+			glm::vec3 deltaPos2 = vert2->position - vert0->position;
+			glm::vec2 deltaUV1 = vert1->uv - vert0->uv;
+			glm::vec2 deltaUV2 = vert2->uv - vert0->uv;
+			float det = (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+			float invDet = 1.0f / det;
+			glm::vec3 tangent = invDet * (-deltaUV2.y * deltaPos1 - deltaUV1.y * deltaPos2);
+			glm::vec3 bitangent = invDet * (-deltaUV2.x * deltaPos1 + deltaUV1.x * deltaPos2);
+			tangent = glm::normalize(tangent);
+			bitangent = glm::normalize(bitangent);
+			vert0->tangent = tangent;
+			vert1->tangent = tangent;
+			vert2->tangent = tangent;
+		}
 
 		// Compute model AABB
 		modelData.aabbMin = Util::Vec3Min(modelData.aabbMin, meshData.aabbMin);

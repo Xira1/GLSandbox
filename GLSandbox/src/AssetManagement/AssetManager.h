@@ -29,8 +29,9 @@ namespace AssetManager {
 	Material* GetMaterialByIndex(int index);
 	Material* GetDefaultMaterial();
 
-	// TODO: Mesh 
-	int CreateMesh(const std::string& name, std::vector<Vertex>& vertices, std::vector<uint32_t> indices, glm::vec3 aabbMin, glm::vec3 aabbMax);
+	// Mesh 
+	int CreateMesh(const std::string& name, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices, glm::vec3 aabbMin, glm::vec3 aabbMax);
+	int CreateMesh(const std::string& name, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);
 	OpenGLDetachedMesh* GetMeshByIndex(int index);
 
 	// Textures

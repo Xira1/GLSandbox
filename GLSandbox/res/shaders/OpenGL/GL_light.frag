@@ -1,8 +1,6 @@
 ﻿#version 460 core
 
 layout (location = 0) out vec4 LightingOut;
-layout (location = 1) out vec4 NormalOut;
-layout (location = 2) out vec4 RMAOut;
 
 layout (binding = 0) uniform sampler2D baseColorTexture;
 layout (binding = 1) uniform sampler2D normalTexture;
@@ -20,35 +18,40 @@ uniform vec3 lightColor;
 uniform float lightIntensity;
 
 void main() {
-    vec4 baseColor = texture2D(baseColorTexture, TexCoord);
-    baseColor.rgb = pow(baseColor.rgb, vec3(2.2));
-
-    vec3 normalMap = texture2D(normalTexture, TexCoord).rgb * 2.0 - 1.0;
-    mat3 TBN = mat3(normalize(Tangent), normalize(Bitangent), normalize(Normal));
-    vec3 worldNormal = normalize(TBN * normalMap);
+    vec3 albedo = texture2D(baseColorTexture, TexCoord).rgb;
+    vec3 normalMap = texture2D(normalTexture, TexCoord).rgb;
 
     vec3 rma = texture2D(rmaTexture, TexCoord).rgb;
     float roughness = rma.r;
     float metallic = rma.g;
     float ao = rma.b;
 
-    vec3 L = normalize(lightPos - WorldPos);
-    vec3 V = normalize(viewPos - WorldPos);
-    vec3 H = normalize(L + V);
+    vec3 norm = normalize(Normal);
+    vec3 lightDir = normalize(lightPos - WorldPos);
+    vec3 viewDir = normalize(viewPos - WorldPos);
 
-    float diff = max(dot(worldNormal, L), 0.0);
-    float spec = pow(max(dot(worldNormal, H), 0.0), mix(8.0, 64.0, 1.0 - roughness));
+    // ambient and AO
+    float ambientStrength = 0.1;
+    vec3 ambient = ambientStrength * lightColor * ao;
 
-    vec3 diffuse = baseColor.rgb * diff * lightColor * lightIntensity;
-    vec3 specular = lightColor * spec * 0.25;
+    // diffuse for both side
+    float diff = max(dot(norm, lightDir), 0.0) + max(dot(-norm, lightDir), 0.0);
+    vec3 diffuse = diff * lightColor;
 
-    vec3 ambient = baseColor.rgb * 0.05 * ao;
+    // specular and roughness
+    float specularStrength = mix(1.0, 0.1, roughness);
+    vec3 reflectDir = reflect(-lightDir, norm);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 64.0);
+    vec3 specular = specularStrength * spec * lightColor;
 
-    vec3 color = ambient + diffuse + specular;
+    // attenuation
+    float distance = length(lightPos - WorldPos);
+    float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * (distance * distance)); // if >, than ligth is dimmer 0.09 and 0.032 is best for my scene
 
-    color = pow(color, vec3(1.0 / 3.8));
+    vec3 lightning = (ambient + diffuse + specular) * attenuation * lightIntensity;
+    vec3 result = lightning * albedo;
 
-    LightingOut = vec4(color, baseColor.a);
-    NormalOut = vec4(worldNormal, 1.0);
-    RMAOut = vec4(rma, 1.0);
+    LightingOut = vec4(result, 1.0);
 }
+
+

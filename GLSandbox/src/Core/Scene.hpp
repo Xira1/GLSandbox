@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Types/GameObject.h"
+#include "../World/Room/Room.h"
 #include "../Input/Input.h"
 
 namespace Scene {
@@ -17,7 +18,7 @@ namespace Scene {
 		for (GameObject& gameObject : g_gameObjects) {
 			gameObject.UpdateRenderItems();
 
-			if (gameObject.m_name == "Sofa_1") {
+			/*if (gameObject.m_name == "Sofa_1") {
 				float amt = 1.5f;
 				if (Input::KeyDown(GLFW_KEY_LEFT)) {
 					gameObject.m_transform.rotation.y += deltaTime * amt;
@@ -26,6 +27,34 @@ namespace Scene {
 				if (Input::KeyDown(GLFW_KEY_RIGHT)) {
 					gameObject.m_transform.rotation.y -= deltaTime * amt;
 					std::cout << gameObject.m_transform.rotation.y << "\n";
+				}
+				if (Input::KeyDown(GLFW_KEY_UP)) {
+					gameObject.m_transform.position.y += deltaTime * amt;
+					std::cout << gameObject.m_transform.position.y << "\n";
+				}
+				if (Input::KeyDown(GLFW_KEY_DOWN)) {
+					gameObject.m_transform.position.y -= deltaTime * amt;
+					std::cout << gameObject.m_transform.position.y << "\n";
+				}
+			}*/
+
+			if (gameObject.m_name == "Lattern") {
+				float amt = 1.5f;
+				if (Input::KeyDown(GLFW_KEY_LEFT)) {
+					gameObject.m_transform.position.x -= deltaTime * amt;
+					std::cout << gameObject.m_transform.position.x << "\n";
+				}
+				if (Input::KeyDown(GLFW_KEY_RIGHT)) {
+					gameObject.m_transform.position.x += deltaTime * amt;
+					std::cout << gameObject.m_transform.position.x << "\n";
+				}
+				if (Input::KeyDown(GLFW_KEY_UP)) {
+					gameObject.m_transform.position.y += deltaTime * amt;
+					std::cout << gameObject.m_transform.position.y << "\n";
+				}
+				if (Input::KeyDown(GLFW_KEY_DOWN)) {
+					gameObject.m_transform.position.y -= deltaTime * amt;
+					std::cout << gameObject.m_transform.position.y << "\n";
 				}
 			}
 
@@ -62,9 +91,26 @@ namespace Scene {
 		if (ChristmasTree) {
 
 		}
+
+		GameObject* CatStatue = GetGameObjectByName("CatStatue");
+		if (CatStatue) {
+			CatStatue->SetMeshMaterialByMeshName("CatMesh", "CatStatue");
+		}
 	}
 
 	inline void CreateGameObjects() {
+		AddGameObjects();
+		GameObject* Room = &g_gameObjects[g_gameObjects.size() - 1];
+		Room->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		Room->SetModel("Room");
+		Room->SetMeshMaterialByMeshName("Floor", "Floor");
+		Room->SetMeshMaterialByMeshName("Ceiling", "Ceiling");
+		Room->SetMeshMaterialByMeshName("WallZPos", "Wall");
+		Room->SetMeshMaterialByMeshName("WallZNeg", "Wall");
+		Room->SetMeshMaterialByMeshName("WallXPos", "Wall");
+		Room->SetMeshMaterialByMeshName("WallXNeg", "Wall");
+		Room->SetName("Room");
+
 		AddGameObjects();
 		GameObject* Sofa = &g_gameObjects[g_gameObjects.size() - 1];
 		Sofa->SetPosition(glm::vec3(3.0f, 0.0f, 0.0f));
@@ -74,9 +120,19 @@ namespace Scene {
 		Sofa->SetName("Sofa_1");
 
 		AddGameObjects();
+		GameObject* Lattern = &g_gameObjects[g_gameObjects.size() - 1];
+		Lattern->SetPosition(glm::vec3(2.2f, 0.66f, -0.88f));
+		//Lattern->SetPosition(glm::vec3(0.0f, 2.0f, 3.0f));
+		Lattern->SetRotation(glm::vec3(0.0f, -0.33f, 0.0f));
+		Lattern->SetModel("Lattern");
+		Lattern->SetMeshMaterialByMeshName("Mesh", "Lattern_01");
+		Lattern->SetMeshMaterialByMeshName("Glass", "LatternOpacity");
+		Lattern->SetName("Lattern");
+
+		AddGameObjects();
 		GameObject* CatStatue = &g_gameObjects[g_gameObjects.size() - 1];
 		CatStatue->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-		Sofa->SetRotation(glm::vec3(0.0f, 0.44f, 0.0f));
+		CatStatue->SetRotation(glm::vec3(0.0f, 0.44f, 0.0f));
 		CatStatue->SetModel("CatStatue");
 		CatStatue->SetMeshMaterialByMeshName("CatMesh", "CatStatue");
 		CatStatue->SetName("CatStatue");
@@ -85,6 +141,7 @@ namespace Scene {
 		GameObject* ChristmasTree = &g_gameObjects[g_gameObjects.size() - 1];
 		ChristmasTree->SetPosition(glm::vec3(-3.0f, 0.0f, 0.0f));
 		ChristmasTree->SetRotation(glm::vec3(0.0f, -0.88f, 0.0f));
+		ChristmasTree->SetSize(glm::vec3(0.67f));
 		ChristmasTree->SetModel("ChristmasTree");
 		ChristmasTree->SetName("ChristmasTree");
 	}

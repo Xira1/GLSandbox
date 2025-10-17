@@ -105,6 +105,7 @@
     <ClCompile Include="src\Camera\Camera.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Types\Texture.cpp" />
+    <ClCompile Include="src\World\Room\Room.cpp" />
     <ClCompile Include="vendor\glad\src\glad.c" />
     <ClCompile Include="vendor\stb_image\stb_image.cpp" />
     <ClCompile Include="vendor\tinyexr\tinyexr.cpp" />
@@ -139,6 +140,7 @@
     <ClInclude Include="src\Types\Skybox.hpp" />
     <ClInclude Include="src\Util.hpp" />
     <ClInclude Include="src\Types\Texture.h" />
+    <ClInclude Include="src\World\Room\Room.h" />
     <ClInclude Include="src\World\WorldGrid.hpp" />
     <ClInclude Include="vendor\stb_image\stb_image.h" />
     <ClInclude Include="vendor\stb_image\stb_image_write.h" />

@@ -74,7 +74,6 @@ void GameObject::UpdateRenderItems() {
 	}
 }
 
-
 void GameObject::PrintMeshNames() {
 	if (m_model) {
 		std::cout << "\nModel name: " + m_model->GetName() << "\n";
@@ -85,6 +84,11 @@ void GameObject::PrintMeshNames() {
 			}
 		}
 	}
+}
+
+glm::vec3 GameObject::GetModelPosition()
+{
+	return m_transform.position;
 }
 
 std::vector<RenderItem>& GameObject::GetRendredItems() {
