@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Types/GameObject.h"
-#include "../World/Room/Room.h"
+#include "../World/Room/Room.hpp"
 #include "../Input/Input.h"
 
 namespace Scene {
@@ -82,20 +82,29 @@ namespace Scene {
 	}
 
 	inline void SetMaterials() {
-		GameObject* Sofa = GetGameObjectByName("Sofa_1");
+		/*GameObject* Sofa = GetGameObjectByName("Sofa_1");
 		if (Sofa) {
 			Sofa->SetMeshMaterialByMeshName("set3_6", "Sofa_1");
-		}
-
-		GameObject* ChristmasTree = GetGameObjectByName("ChristmasTree");
-		if (ChristmasTree) {
-
 		}
 
 		GameObject* CatStatue = GetGameObjectByName("CatStatue");
 		if (CatStatue) {
 			CatStatue->SetMeshMaterialByMeshName("CatMesh", "CatStatue");
 		}
+
+		GameObject* Vergil = GetGameObjectByName("CatStatue");
+		if (Vergil) {
+			Vergil->SetMeshMaterialByMeshName("BodyLegs", "Sofa_1");
+			Vergil->SetMeshMaterialByMeshName("Hands", "Sofa_1");
+			Vergil->SetMeshMaterialByMeshName("Head", "Sofa_1");
+			Vergil->SetMeshMaterialByMeshName("Horns", "Sofa_1");
+			Vergil->SetMeshMaterialByMeshName("LeftNails", "Sofa_1");
+			Vergil->SetMeshMaterialByMeshName("RightNails", "Sofa_1");
+			Vergil->SetMeshMaterialByMeshName("ScabbardLeft", "Sofa_1");
+			Vergil->SetMeshMaterialByMeshName("ScabbardRight", "Sofa_1");
+			Vergil->SetMeshMaterialByMeshName("Tail", "Sofa_1");
+			Vergil->SetMeshMaterialByMeshName("Wings", "Sofa_1");
+		}*/
 	}
 
 	inline void CreateGameObjects() {
@@ -120,9 +129,25 @@ namespace Scene {
 		Sofa->SetName("Sofa_1");
 
 		AddGameObjects();
+		GameObject* Vergil = &g_gameObjects[g_gameObjects.size() - 1];
+		Vergil->SetPosition(glm::vec3(0.0f, 2.0f, 0.0f));
+		Vergil->SetRotation(glm::vec3(0.0f, -0.22f, 0.0f));
+		Vergil->SetModel("SDT_Vergil");
+		Vergil->SetMeshMaterialByMeshName("BodyLegs", "Sofa_1");
+		Vergil->SetMeshMaterialByMeshName("Hands", "Sofa_1");
+		Vergil->SetMeshMaterialByMeshName("Head", "Sofa_1");
+		Vergil->SetMeshMaterialByMeshName("Horns", "Sofa_1");
+		Vergil->SetMeshMaterialByMeshName("LeftNails", "Sofa_1");
+		Vergil->SetMeshMaterialByMeshName("RightNails", "Sofa_1");
+		Vergil->SetMeshMaterialByMeshName("ScabbardLeft", "Sofa_1");
+		Vergil->SetMeshMaterialByMeshName("ScabbardRight", "Sofa_1");
+		Vergil->SetMeshMaterialByMeshName("Tail", "Sofa_1");
+		Vergil->SetMeshMaterialByMeshName("Wings", "Sofa_1");
+		Vergil->SetName("SDT_Vergil");
+
+		AddGameObjects();
 		GameObject* Lattern = &g_gameObjects[g_gameObjects.size() - 1];
 		Lattern->SetPosition(glm::vec3(2.2f, 0.66f, -0.88f));
-		//Lattern->SetPosition(glm::vec3(0.0f, 2.0f, 3.0f));
 		Lattern->SetRotation(glm::vec3(0.0f, -0.33f, 0.0f));
 		Lattern->SetModel("Lattern");
 		Lattern->SetMeshMaterialByMeshName("Mesh", "Lattern_01");
@@ -131,7 +156,7 @@ namespace Scene {
 
 		AddGameObjects();
 		GameObject* CatStatue = &g_gameObjects[g_gameObjects.size() - 1];
-		CatStatue->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+		CatStatue->SetPosition(glm::vec3(3.0f, 0.0f, 5.0f));
 		CatStatue->SetRotation(glm::vec3(0.0f, 0.44f, 0.0f));
 		CatStatue->SetModel("CatStatue");
 		CatStatue->SetMeshMaterialByMeshName("CatMesh", "CatStatue");

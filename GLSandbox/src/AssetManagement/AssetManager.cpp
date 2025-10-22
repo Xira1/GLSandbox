@@ -4,7 +4,7 @@
 #include "../Util.hpp"
 #include "../API/OpenGL/GL_backend.h"
 #include "../Types/TextureTools/TextureTools.h"
-#include "../World/Room/Room.h"
+#include "../World/Room/Room.hpp"
 
 namespace AssetManager {
 	// Thread parts
