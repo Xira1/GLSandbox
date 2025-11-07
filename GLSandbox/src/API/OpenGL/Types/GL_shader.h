@@ -19,8 +19,11 @@ private:
     std::vector<std::string> m_lineMap;
 };
 
-struct Shader {
+struct OpenGLShader {
 public:
+    OpenGLShader() = default;
+    OpenGLShader(std::vector<std::string> shaderPaths);
+
     void Use();
     bool Load(std::vector<std::string> shaderPaths);
     void SetInt(const std::string& name, int value);
@@ -36,8 +39,11 @@ public:
     void SetVec3(const std::string& name, float x, float y, float z);
     void SetVec4(const std::string& name, float x, float y, float z, float w);
     void SetUvec2(const std::string& name, const glm::uvec2& value);
+    void SetSampler3D(const std::string& name, unsigned int texture, int id);
+    void SetSampler2D(const std::string& name, unsigned int texture, int id);
     int GetHandle();
 private:
+    std::vector<std::string> m_shaderPaths;
     std::unordered_map<std::string, int> m_uniformLocations;
     int m_handle = -1;
 };

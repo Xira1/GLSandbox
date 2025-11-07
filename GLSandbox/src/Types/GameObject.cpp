@@ -1,6 +1,7 @@
 #include "GameObject.h"
 
 #include "../AssetManagement/AssetManager.h"
+#include "../Core/Scene.hpp"
 
 void GameObject::SetName(const std::string& name) {
 	m_name = name;
@@ -49,6 +50,28 @@ void GameObject::SetMeshMaterialByMeshName(std::string meshName, const char* mat
 	}
 	else {
 		std::cout << "Tried to call SetMeshMaterialByMeshName() but the meshName '" << meshName << "' not found\n";
+	}
+}
+
+void GameObject::SetMeshColorByMeshName(std::string meshName, glm::vec3 color) {
+	if (m_model) {
+		for (int i = 0; i < m_model->GetMeshCount(); i++) {
+			OpenGLDetachedMesh* mesh = AssetManager::GetMeshByIndex(m_model->GetMeshIndices()[i]);
+			if (mesh && mesh->GetName() == meshName) {
+				int materialIndex = m_meshMaterialIndices[i];
+				Material* material = AssetManager::GetMaterialByIndex(materialIndex);
+				if (material) {
+					material->SetMaterialColor(color);
+				}
+
+				RenderItem* renderItem = Scene::GetRenderItemByMeshIndex(m_model->GetMeshIndices()[i]);
+				if (renderItem) {
+					renderItem->materialColor = color;
+				}
+
+				return;
+			}
+		}
 	}
 }
 

@@ -5,20 +5,45 @@
 #include "../Types/TextureTools/TextureTools.h"
 #include "../Utils/GL_utils.hpp"
 
-//void OpenGLTexture::Load(const FileInfo& fileInfo, ImageDataType imageDataType) {
-//
-//}
-//
-//void OpenGLTexture::AllocateTextureMemory(int width, int height, int format, int internalFormat, int mimapLevelCount) {
-//
-//}
-
 void OpenGLTexture::Bind(unsigned int slot) {
 	glActiveTexture(GL_TEXTURE0 + slot);
 	glBindTexture(GL_TEXTURE_2D, m_handle);
 }
 
 GLuint& OpenGLTexture::GetHandle() {
+	return m_handle;
+}
+
+unsigned int OpenGLTexture::Texture2D(float w, float h) {
+	unsigned int m_handle;
+	glGenTextures(1, &m_handle);
+	glBindTexture(GL_TEXTURE_2D, m_handle);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, OpenGLUtils::TextureWrapModeToGLEnum(TextureWrapMode::REPEAT));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, OpenGLUtils::TextureWrapModeToGLEnum(TextureWrapMode::REPEAT));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, OpenGLUtils::TextureFilterToGLEnum(TextureFilter::LINEAR));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, OpenGLUtils::TextureFilterToGLEnum(TextureFilter::LINEAR_MIPMAP));
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_FLOAT, NULL);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	return m_handle;
+}
+
+unsigned int OpenGLTexture::Texture3D(float w, float h, float d) {
+	unsigned int m_handle;
+	glGenTextures(1, &m_handle);
+	glBindTexture(GL_TEXTURE_3D, m_handle);
+
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, OpenGLUtils::TextureWrapModeToGLEnum(TextureWrapMode::REPEAT));
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, OpenGLUtils::TextureWrapModeToGLEnum(TextureWrapMode::REPEAT));
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, OpenGLUtils::TextureFilterToGLEnum(TextureFilter::LINEAR));
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, OpenGLUtils::TextureFilterToGLEnum(TextureFilter::LINEAR));
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, OpenGLUtils::TextureFilterToGLEnum(TextureFilter::LINEAR_MIPMAP));
+
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA8, w, h, d, 0, GL_RGBA, GL_FLOAT, NULL);
+	glGenerateMipmap(GL_TEXTURE_3D);
+
 	return m_handle;
 }
 

@@ -8,8 +8,8 @@
 struct OpenGLTexture {
 public:
 	OpenGLTexture() = default;
-	/*void Load(const FileInfo& fileInfo, ImageDataType imageDataType);
-	void AllocateTextureMemory(int width, int height, int format, int internalFormat, int mimapLevelCount);*/
+	unsigned int Texture3D(float w, float h, float d);
+	unsigned int Texture2D(float w, float h);
 	void Bind(unsigned int slot);
 	void SetWrapMode(TextureWrapMode wrapMode);
 	void SetMinFilter(TextureFilter filter);
@@ -22,7 +22,7 @@ public:
 	GLint GetInternalFormat();
 	GLsizei GetDataSize();
 	GLuint& GetHandle();
-	//GLuint64& GetBindlessID();
+
 
 private:
 	GLuint m_handle = 0;

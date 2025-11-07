@@ -5,7 +5,6 @@
 #include <fstream>
 #include <sstream>
 #include <regex>
-#include "GL_texture.h"
 
 void ParseFile(const std::string& filepath, std::string& outputString, std::vector<std::string>& lineToFile, std::vector<std::string>& includedPaths);
 int GetErrorLineNumber(const std::string& error);
@@ -13,11 +12,16 @@ std::string GetErrorMessage(const std::string& line);
 std::string GetLinkingErrors(unsigned int shader);
 std::string GetShaderCompileErrors(unsigned int shader, const std::string& filename, const std::vector<std::string>& lineToFile);
 
-void Shader::Use() {
+OpenGLShader::OpenGLShader(std::vector<std::string> shaderPaths) {
+    m_shaderPaths = shaderPaths;
+    Load(m_shaderPaths);
+}
+
+void OpenGLShader::Use() {
     glUseProgram(m_handle);
 }
 
-bool Shader::Load(std::vector<std::string> shaderPaths) {
+bool OpenGLShader::Load(std::vector<std::string> shaderPaths) {
 
     std::vector<ShaderModule> modules;
     for (std::string& shaderPath : shaderPaths) {
@@ -86,98 +90,110 @@ bool Shader::Load(std::vector<std::string> shaderPaths) {
     return true;
 }
 
-void Shader::SetBool(const std::string& name, bool value) {
+void OpenGLShader::SetBool(const std::string& name, bool value) {
     if (m_uniformLocations.find(name) == m_uniformLocations.end()) {
         m_uniformLocations[name] = glGetUniformLocation(m_handle, name.c_str());
     }
     glUniform1i(m_uniformLocations[name], (int)value);
 }
 
-void Shader::SetInt(const std::string& name, int value) {
+void OpenGLShader::SetInt(const std::string& name, int value) {
     if (m_uniformLocations.find(name) == m_uniformLocations.end()) {
         m_uniformLocations[name] = glGetUniformLocation(m_handle, name.c_str());
     }
     glUniform1i(m_uniformLocations[name], value);
 }
 
-void Shader::SetFloat(const std::string& name, float value) {
+void OpenGLShader::SetFloat(const std::string& name, float value) {
     if (m_uniformLocations.find(name) == m_uniformLocations.end()) {
         m_uniformLocations[name] = glGetUniformLocation(m_handle, name.c_str());
     }
     glUniform1f(m_uniformLocations[name], value);
 }
 
-void Shader::SetMat2(const std::string& name, const glm::mat2& mat) {
+void OpenGLShader::SetMat2(const std::string& name, const glm::mat2& mat) {
     if (m_uniformLocations.find(name) == m_uniformLocations.end()) {
         m_uniformLocations[name] = glGetUniformLocation(m_handle, name.c_str());
     }
     glUniformMatrix2fv(m_uniformLocations[name], 1, GL_FALSE, &mat[0][0]);
 }
 
-void Shader::SetMat3(const std::string& name, const glm::mat3& mat) {
+void OpenGLShader::SetMat3(const std::string& name, const glm::mat3& mat) {
     if (m_uniformLocations.find(name) == m_uniformLocations.end()) {
         m_uniformLocations[name] = glGetUniformLocation(m_handle, name.c_str());
     }
     glUniformMatrix3fv(m_uniformLocations[name], 1, GL_FALSE, &mat[0][0]);
 }
 
-void Shader::SetMat4(const std::string& name, glm::mat4 value) {
+void OpenGLShader::SetMat4(const std::string& name, glm::mat4 value) {
     if (m_uniformLocations.find(name) == m_uniformLocations.end()) {
         m_uniformLocations[name] = glGetUniformLocation(m_handle, name.c_str());
     }
     glUniformMatrix4fv(m_uniformLocations[name], 1, GL_FALSE, &value[0][0]);
 }
 
-void Shader::SetUvec2(const std::string& name, const glm::uvec2& value) {
+void OpenGLShader::SetUvec2(const std::string& name, const glm::uvec2& value) {
     if (m_uniformLocations.find(name) == m_uniformLocations.end()) {
         m_uniformLocations[name] = glGetUniformLocation(m_handle, name.c_str());
     }
     glUniform2uiv(m_uniformLocations[name], 1, &value[0]);
 }
 
-void Shader::SetVec2(const std::string& name, const glm::vec2& value) {
+void OpenGLShader::SetVec2(const std::string& name, const glm::vec2& value) {
     if (m_uniformLocations.find(name) == m_uniformLocations.end()) {
         m_uniformLocations[name] = glGetUniformLocation(m_handle, name.c_str());
     }
     glUniform2fv(m_uniformLocations[name], 1, &value[0]);
 }
 
-void Shader::SetVec3(const std::string& name, const glm::vec3& value) {
+void OpenGLShader::SetVec3(const std::string& name, const glm::vec3& value) {
     if (m_uniformLocations.find(name) == m_uniformLocations.end()) {
         m_uniformLocations[name] = glGetUniformLocation(m_handle, name.c_str());
     }
     glUniform3fv(m_uniformLocations[name], 1, &value[0]);
 }
 
-void Shader::SetVec4(const std::string& name, const glm::vec4& value) {
+void OpenGLShader::SetVec4(const std::string& name, const glm::vec4& value) {
     if (m_uniformLocations.find(name) == m_uniformLocations.end()) {
         m_uniformLocations[name] = glGetUniformLocation(m_handle, name.c_str());
     }
     glUniform4fv(m_uniformLocations[name], 1, &value[0]);
 }
 
-void Shader::SetVec2(const std::string& name, float x, float y) {
+void OpenGLShader::SetVec2(const std::string& name, float x, float y) {
     if (m_uniformLocations.find(name) == m_uniformLocations.end()) {
         m_uniformLocations[name] = glGetUniformLocation(m_handle, name.c_str());
     }
     glUniform2f(m_uniformLocations[name], x, y);
 }
 
-void Shader::SetVec3(const std::string& name, float x, float y, float z) {
+void OpenGLShader::SetVec3(const std::string& name, float x, float y, float z) {
     if (m_uniformLocations.find(name) == m_uniformLocations.end()) {
         m_uniformLocations[name] = glGetUniformLocation(m_handle, name.c_str());
     }
     glUniform3f(m_uniformLocations[name], x, y, z);
 }
 
-void Shader::SetVec4(const std::string& name, float x, float y, float z, float w) {
+void OpenGLShader::SetVec4(const std::string& name, float x, float y, float z, float w) {
     if (m_uniformLocations.find(name) == m_uniformLocations.end()) {
         m_uniformLocations[name] = glGetUniformLocation(m_handle, name.c_str());
     }
     glUniform4f(m_uniformLocations[name], x, y, z, w);
 }
 
-int Shader::GetHandle() {
+void OpenGLShader::SetSampler3D(const std::string& name, unsigned int texture, int id) {
+    glActiveTexture(GL_TEXTURE0 + id);
+    glBindTexture(GL_TEXTURE_3D, texture);
+    this->SetInt(name, id);
+}
+
+void OpenGLShader::SetSampler2D(const std::string& name, unsigned int texture, int id) {
+    glActiveTexture(GL_TEXTURE0 + id);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    this->SetInt(name, id);
+}
+
+int OpenGLShader::GetHandle() {
     return m_handle;
 }
 

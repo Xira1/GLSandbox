@@ -1,5 +1,6 @@
 #include "Texture.h"
 #include "TextureTools/TextureTools.h"
+#include "../API/OpenGL/Utils/GL_utils.hpp"
 
 void Texture::Load() {
 	if (m_imageDataType == ImageDataType::UNCOMPRESSED) {

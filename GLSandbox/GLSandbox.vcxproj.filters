@@ -45,9 +45,6 @@
     <ClCompile Include="src\API\OpenGL\GL_renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Engine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Types\GameObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -70,6 +67,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\AssetManagement\BakeQueue\BakeQueue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\World\VolumetricClouds\VolumetricClouds.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\World\Skybox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\World\Grid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -116,9 +122,6 @@
     <ClInclude Include="src\API\OpenGL\GL_renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Engine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Types\Model.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -128,10 +131,10 @@
     <ClInclude Include="src\Types\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Types\Skybox.hpp">
+    <ClInclude Include="src\World\Skybox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\World\WorldGrid.hpp">
+    <ClInclude Include="src\World\Grid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Player\Player.h">
@@ -173,6 +176,12 @@
     <ClInclude Include="src\World\Room\Room.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\World\VolumetricClouds\VolumetricClouds.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\OpenGL\Types\GL_texture_3D.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\OpenGL\GL_solid_color.vert" />
@@ -182,6 +191,14 @@
     <None Include="res\shaders\OpenGL\GL_grid.vert" />
     <None Include="res\shaders\OpenGL\GL_light.vert" />
     <None Include="res\shaders\OpenGL\GL_light.frag" />
+    <None Include="res\shaders\OpenGL\Clouds\perlinworley.comp" />
+    <None Include="res\shaders\OpenGL\Clouds\worley.comp" />
+    <None Include="res\shaders\OpenGL\Clouds\GL_volumetric_clouds.comp">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="res\shaders\OpenGL\Clouds\GL_clouds_post.frag" />
+    <None Include="res\shaders\OpenGL\GL_post_processing.frag" />
+    <None Include="res\shaders\OpenGL\Clouds\GL_weather.comp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\shaders\OpenGL\GL_grid.frag" />

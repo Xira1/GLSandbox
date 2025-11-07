@@ -25,6 +25,11 @@ private:
     DepthAttachment depthAttachment;
 
 public:
+    OpenGLFrameBuffer() = default;
+
+    OpenGLFrameBuffer(const char* name, int width, int height) {
+        Create(name, width, height);
+    }
 
     static bool StrCmp(const char* queryA, const char* queryB) {
         if (strcmp(queryA, queryB) == 0)
@@ -38,6 +43,17 @@ public:
         this->name = name;
         this->width = width;
         this->height = height;
+    }
+
+    int GetColorAttachmentCount() {
+        return (int)colorAttachments.size();
+    }
+
+    GLuint GetColorAttachmentByIndex(int index) {
+        if (index >= 0 && index < colorAttachments.size()) {
+            return colorAttachments[index].handle;
+        }
+        return GL_NONE;
     }
 
     void CleanUp() {

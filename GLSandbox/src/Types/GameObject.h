@@ -15,6 +15,7 @@ struct GameObject {
 	void SetSize(glm::vec3 size);
 	void SetModel(const std::string& name);
 	void SetMeshMaterialByMeshName(std::string meshName, const char* materialName);
+	void SetMeshColorByMeshName(std::string meshName, glm::vec3 color);
 	void PrintMeshNames();
 	void UpdateRenderItems();
 	glm::vec3 GetModelPosition();

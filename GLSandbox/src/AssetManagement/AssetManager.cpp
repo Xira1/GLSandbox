@@ -63,6 +63,21 @@ namespace AssetManager {
 	██  ██  ██ ██    ██ ██   ██ ██      ██           ██
 	██      ██  ██████  ██████  ███████ ███████ ███████ */
 
+	// This for tests
+
+	/*void LoadModelsAsync() {
+		for (FileInfo& fileInfo : Util::IterateDirectory("res/models", { "obj", "fbx" })) {
+			Model& model = g_models.emplace_back();
+			ModelData modelData = AssimpImporter::ImportModel(fileInfo.path);
+
+			LoadModelFromData(model, modelData);
+		}
+
+		for (int i = 0; i < g_models.size(); i++) {
+			g_modelIndexMap[g_models[i].GetName()] = i;
+		}
+	}*/
+
 	void LoadModelsAsync() {
 		g_running = true;
 		std::vector<std::future<Model*>> futures;

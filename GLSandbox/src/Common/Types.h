@@ -55,6 +55,7 @@ struct RenderItem {
 	int baseColorTextureIndex;
 	int normalColorTextureIndex;
 	int rmaColorTextureIndex;
+	glm::vec3 materialColor = glm::vec3(1.0f);
 };
 
 struct Material {
@@ -63,6 +64,16 @@ struct Material {
 	int m_baseColor = 0;
 	int m_normal = 0;
 	int m_rma = 0;
+
+	glm::vec3 m_materialColor = glm::vec3(1.0f);
+
+	void SetMaterialColor(glm::vec3 color) {
+		m_materialColor = color;
+	}
+
+	glm::vec3 GetMaterialColor() {
+		return m_materialColor;
+	}
 };
 
 struct TextureData {

@@ -3,6 +3,7 @@
 #include "../Types/GameObject.h"
 #include "../World/Room/Room.hpp"
 #include "../Input/Input.h"
+#include "Common.h"
 
 namespace Scene {
 	inline std::vector<GameObject> g_gameObjects;
@@ -17,26 +18,6 @@ namespace Scene {
 
 		for (GameObject& gameObject : g_gameObjects) {
 			gameObject.UpdateRenderItems();
-
-			/*if (gameObject.m_name == "Sofa_1") {
-				float amt = 1.5f;
-				if (Input::KeyDown(GLFW_KEY_LEFT)) {
-					gameObject.m_transform.rotation.y += deltaTime * amt;
-					std::cout << gameObject.m_transform.rotation.y << "\n";
-				}
-				if (Input::KeyDown(GLFW_KEY_RIGHT)) {
-					gameObject.m_transform.rotation.y -= deltaTime * amt;
-					std::cout << gameObject.m_transform.rotation.y << "\n";
-				}
-				if (Input::KeyDown(GLFW_KEY_UP)) {
-					gameObject.m_transform.position.y += deltaTime * amt;
-					std::cout << gameObject.m_transform.position.y << "\n";
-				}
-				if (Input::KeyDown(GLFW_KEY_DOWN)) {
-					gameObject.m_transform.position.y -= deltaTime * amt;
-					std::cout << gameObject.m_transform.position.y << "\n";
-				}
-			}*/
 
 			if (gameObject.m_name == "Lattern") {
 				float amt = 1.5f;
@@ -71,6 +52,16 @@ namespace Scene {
 		for (GameObject& gameObject : g_gameObjects) {
 			if (gameObject.m_name == name) {
 				return &gameObject;
+			}
+		}
+
+		return nullptr;
+	}
+
+	inline RenderItem* GetRenderItemByMeshIndex(int index) {
+		for (RenderItem& item : g_renderItems) {
+			if (item.meshIndex == index) {
+				return &item;
 			}
 		}
 
@@ -130,19 +121,18 @@ namespace Scene {
 
 		AddGameObjects();
 		GameObject* Vergil = &g_gameObjects[g_gameObjects.size() - 1];
-		Vergil->SetPosition(glm::vec3(0.0f, 2.0f, 0.0f));
-		Vergil->SetRotation(glm::vec3(0.0f, -0.22f, 0.0f));
+		Vergil->SetPosition(glm::vec3(0.0f, 1.0f, 0.0f));
 		Vergil->SetModel("SDT_Vergil");
-		Vergil->SetMeshMaterialByMeshName("BodyLegs", "Sofa_1");
-		Vergil->SetMeshMaterialByMeshName("Hands", "Sofa_1");
-		Vergil->SetMeshMaterialByMeshName("Head", "Sofa_1");
-		Vergil->SetMeshMaterialByMeshName("Horns", "Sofa_1");
-		Vergil->SetMeshMaterialByMeshName("LeftNails", "Sofa_1");
-		Vergil->SetMeshMaterialByMeshName("RightNails", "Sofa_1");
-		Vergil->SetMeshMaterialByMeshName("ScabbardLeft", "Sofa_1");
-		Vergil->SetMeshMaterialByMeshName("ScabbardRight", "Sofa_1");
-		Vergil->SetMeshMaterialByMeshName("Tail", "Sofa_1");
-		Vergil->SetMeshMaterialByMeshName("Wings", "Sofa_1");
+		Vergil->SetMeshMaterialByMeshName("BodyLegs", "CatStatue");
+		Vergil->SetMeshMaterialByMeshName("Hands", "CatStatue");
+		Vergil->SetMeshMaterialByMeshName("Head", "CatStatue");
+		Vergil->SetMeshMaterialByMeshName("Horns", "CatStatue");
+		Vergil->SetMeshMaterialByMeshName("LeftNails", "CatStatue");
+		Vergil->SetMeshMaterialByMeshName("RightNails", "CatStatue");
+		Vergil->SetMeshMaterialByMeshName("Tail", "CatStatue");
+		Vergil->SetMeshMaterialByMeshName("Wings", "CatStatue");
+		/*Vergil->SetMeshColorByMeshName("ScabbardLeft", LIGHT_BLUE);
+		Vergil->SetMeshColorByMeshName("ScabbardRight", LIGHT_BLUE);*/
 		Vergil->SetName("SDT_Vergil");
 
 		AddGameObjects();
@@ -156,7 +146,7 @@ namespace Scene {
 
 		AddGameObjects();
 		GameObject* CatStatue = &g_gameObjects[g_gameObjects.size() - 1];
-		CatStatue->SetPosition(glm::vec3(3.0f, 0.0f, 5.0f));
+		CatStatue->SetPosition(glm::vec3(3.0f, 0.0f, -5.0f));
 		CatStatue->SetRotation(glm::vec3(0.0f, 0.44f, 0.0f));
 		CatStatue->SetModel("CatStatue");
 		CatStatue->SetMeshMaterialByMeshName("CatMesh", "CatStatue");

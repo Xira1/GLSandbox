@@ -4,11 +4,12 @@
 #include "Types/GL_texture.h"
 #include "../AssetManagement/AssetManager.h"
 #include "../Camera/Camera.h"
-#include "../Types/Skybox.hpp"
+#include "../World/Skybox.h"
+#include "../World/VolumetricClouds/VolumetricClouds.h"
 #include "../API/OpenGL/GL_backend.h"
 #include "../API/OpenGL/Types/GL_detachedMesh.hpp"
 #include "../API/OpenGL/Types/GL_framebuffer.hpp"
-#include "../World/WorldGrid.hpp"
+#include "../World/Grid.h"
 #include "../Core/Scene.hpp"
 #include "../../Util.hpp"
 
@@ -16,23 +17,22 @@ namespace OpenGLRenderer {
 	OpenGLDetachedMesh cubeMeshPlayer;
 
 	struct Shaders {
-		Shader skybox;
-		Shader solidColor;
-		Shader gridShader;
-		Shader light;
+		OpenGLShader skybox;
+		OpenGLShader solidColor;
+		OpenGLShader gridShader;
+		OpenGLShader light;
 	} g_shaders;
 
 	struct FrameBuffers {
 		OpenGLFrameBuffer main;
 	} g_frameBuffers;
 
+	VolumetricClouds g_clouds;
 	Skybox g_skybox;
 	Grid g_grid;
 
-	void RenderSkyBox();
-	void RenderGrid();
+	void RenderScene(OpenGLShader& shader);
 	void RenderCubePlayer();
-	void RenderScene(Shader& shader);
 	void RenderLightning();
 
 	void Init() {
@@ -44,6 +44,7 @@ namespace OpenGLRenderer {
 		std::vector<uint32_t> cubeIndPlayer = Cube::GetIndices();
 		cubeMeshPlayer.UpdateVertexBuffer(cubeVertPlayer, cubeIndPlayer);
 
+		g_clouds.Init();
 		g_grid.Init();
 		g_skybox.Init();
 
@@ -57,14 +58,14 @@ namespace OpenGLRenderer {
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		RenderSkyBox();
-		RenderGrid();
+		g_skybox.RenderSkyBox(g_shaders.skybox, g_frameBuffers.main);
+		g_grid.RenderGrid(g_shaders.gridShader, g_frameBuffers.main);
+		g_clouds.RenderClouds();
 		RenderLightning();
 		RenderCubePlayer();
 
 		int width, height;
 		glfwGetWindowSize(OpenGLBackend::GetWindowPtr(), &width, &height);
-
 
 		g_frameBuffers.main.BlitToDefaultFrameBuffer("Color", 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
@@ -72,7 +73,7 @@ namespace OpenGLRenderer {
 		glfwPollEvents();
 	}
 
-	void RenderScene(Shader& shader) {
+	void RenderScene(OpenGLShader& shader) {
 		for (RenderItem& renderItem : Scene::GetRenderItems()) {
 			OpenGLDetachedMesh* mesh = AssetManager::GetMeshByIndex(renderItem.meshIndex);
 			if (mesh) {
@@ -132,57 +133,6 @@ namespace OpenGLRenderer {
 
 		glBindVertexArray(cubeMeshPlayer.GetVAO());
 		glDrawElements(GL_TRIANGLES, cubeMeshPlayer.GetIndexCount(), GL_UNSIGNED_INT, 0);
-	}
-
-	void RenderSkyBox() {
-		g_frameBuffers.main.Bind();
-		g_frameBuffers.main.SetViewport();
-		g_frameBuffers.main.DrawBuffers({ "Color" });
-
-		glEnable(GL_DEPTH_TEST);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, g_skybox.cubemap.ID);
-
-		g_shaders.skybox.Use();
-		g_shaders.skybox.SetInt("skybox", 0);
-		g_shaders.skybox.SetFloat("darknessFactor", 1.0f);
-		g_shaders.skybox.SetMat4("view", glm::mat4(glm::mat3(Camera::GetViewMatrixPlayer())));
-		g_shaders.skybox.SetMat4("projection", Camera::GetProjectionMatrix());
-
-		glDepthFunc(GL_LEQUAL);
-		glBindVertexArray(g_skybox.VAO);
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-		glDepthFunc(GL_LESS);
-		glClear(GL_DEPTH_BUFFER_BIT);
-	}
-
-	void RenderGrid() {
-		g_frameBuffers.main.Bind();
-		g_frameBuffers.main.SetViewport();
-		g_frameBuffers.main.DrawBuffers({ "Color" });
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-		glDepthMask(GL_FALSE);
-
-		g_shaders.gridShader.Use();
-
-		glm::mat4 invViewProj = glm::inverse(Camera::GetProjectionMatrix() * Camera::GetViewMatrixPlayer());
-
-		g_shaders.gridShader.SetMat4("uInverseViewProjection", invViewProj);
-		g_shaders.gridShader.SetVec3("uCameraPosition", Camera::GetViewPos());
-		g_shaders.gridShader.SetVec2("uResolution", glm::vec2(OpenGLBackend::GetWindowWidth(), OpenGLBackend::GetWindowHeight()));
-		g_shaders.gridShader.SetVec3("uGridColor", glm::vec3(0.5f));
-		g_shaders.gridShader.SetFloat("uGridSize", 0.2f);
-		g_shaders.gridShader.SetFloat("uMajorFactor", 10.0f);
-
-		glBindVertexArray(g_grid.VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		glBindVertexArray(0);
-
-		glDepthMask(GL_TRUE);
-		glDisable(GL_BLEND);
 	}
 
 
