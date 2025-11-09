@@ -28,5 +28,8 @@ namespace OpenGLBackend {
 	void UpdateTextureBaking();
 	void AsyncBakeQueuedTextureBake(QueuedTextureBake& queuedTextureBake);
 
+	// Buffers
+	void UploadVertexBuffers(std::vector<Vertex>&, std::vector<uint32_t>& indices);
+
 	void Cleanup();
 }

@@ -93,6 +93,10 @@
     <None Include="res\shaders\OpenGL\Clouds\GL_volumetric_clouds.comp">
       <FileType>Document</FileType>
     </None>
+    <ClCompile Include="src\API\OpenGL\Renderer\RenderPasses\GL_cloud_pass.cpp" />
+    <ClCompile Include="src\API\OpenGL\Renderer\RenderPasses\GL_grid_pass.cpp" />
+    <ClCompile Include="src\API\OpenGL\Renderer\RenderPasses\GL_skybox_pass.cpp" />
+    <ClCompile Include="src\API\OpenGL\Types\GL_cubemapView.cpp" />
     <ClCompile Include="src\AssetManagement\AssetManager.cpp" />
     <ClCompile Include="src\AssetManagement\BakeQueue\BakeQueue.cpp" />
     <ClCompile Include="src\Camera\Viewer.cpp" />
@@ -100,7 +104,7 @@
     <ClCompile Include="src\Importer\AssimpImporter.cpp" />
     <ClCompile Include="src\Player\Player.cpp" />
     <ClCompile Include="src\Types\GameObject.cpp" />
-    <ClCompile Include="src\API\OpenGL\GL_renderer.cpp" />
+    <ClCompile Include="src\API\OpenGL\Renderer\GL_renderer.cpp" />
     <ClCompile Include="src\API\OpenGL\GL_backend.cpp" />
     <ClCompile Include="src\API\OpenGL\Types\GL_texture.cpp" />
     <ClCompile Include="src\API\OpenGL\Types\GL_shader.cpp" />
@@ -116,6 +120,7 @@
     <ClCompile Include="vendor\tinyexr\tinyexr.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\API\OpenGL\Types\GL_cubemapView.h" />
     <ClInclude Include="src\API\OpenGL\Types\GL_framebuffer.hpp" />
     <ClInclude Include="src\API\OpenGL\Types\GL_pbo.hpp" />
     <ClInclude Include="src\API\OpenGL\Types\GL_texture_3D.hpp" />
@@ -130,7 +135,7 @@
     <ClInclude Include="src\Importer\AssimpImporter.h" />
     <ClInclude Include="src\Player\Player.h" />
     <ClInclude Include="src\Types\GameObject.h" />
-    <ClInclude Include="src\API\OpenGL\GL_renderer.h" />
+    <ClInclude Include="src\API\OpenGL\Renderer\GL_renderer.h" />
     <ClInclude Include="src\API\OpenGL\GL_backend.h" />
     <ClInclude Include="src\API\OpenGL\Types\GL_texture.h" />
     <ClInclude Include="src\API\OpenGL\Types\GL_shader.h" />

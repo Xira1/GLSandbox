@@ -3,6 +3,7 @@
 #include "BakeQueue/BakeQueue.h"
 #include "../Util.hpp"
 #include "../API/OpenGL/GL_backend.h"
+#include "../API/OpenGL/Renderer/GL_renderer.h"
 #include "../Types/TextureTools/TextureTools.h"
 #include "../World/Room/Room.hpp"
 
@@ -44,10 +45,13 @@ namespace AssetManager {
 	void Init() {
 		CompressMissingDDSTexutres();
 		HardcodedRoom::LoadHardcodedModelRoom();
+
 		LoadTextureMinimum();
 		LoadModelsAsync();
 		LoadTexturesAsync();
 		BuildMaterials();
+
+		OpenGLRenderer::InitMain();
 	}
 
 	void Update() {
@@ -64,7 +68,6 @@ namespace AssetManager {
 	██      ██  ██████  ██████  ███████ ███████ ███████ */
 
 	// This for tests
-
 	/*void LoadModelsAsync() {
 		for (FileInfo& fileInfo : Util::IterateDirectory("res/models", { "obj", "fbx" })) {
 			Model& model = g_models.emplace_back();
@@ -277,6 +280,23 @@ namespace AssetManager {
 		}
 	}
 
+	OpenGLDetachedMesh* GetCubeMesh() {
+		static OpenGLDetachedMesh* mesh = nullptr;
+
+		if (!mesh) {
+			int modelIdx = GetModelIndexByName("Cube");
+			if (modelIdx != -1) {
+				Model* model = GetModelByIndex(modelIdx);
+				if (model) {
+					int meshIdx = model->GetMeshIndices()[0];
+					mesh = GetMeshByIndex(meshIdx);
+				}
+			}
+		}
+
+		return mesh;
+	}
+
 	/*
 	████████ ███████ ██   ██ ████████ ██    ██ ██████  ███████ ███████
 	   ██    ██       ██ ██     ██    ██    ██ ██   ██ ██      ██
@@ -318,6 +338,16 @@ namespace AssetManager {
 			Texture& texture = g_textures.emplace_back();
 			texture.SetFileInfo(fileInfo);
 			texture.SetImageDataType(ImageDataType::COMPRESSED);
+			texture.SetTextureWrapMode(TextureWrapMode::REPEAT);
+			texture.SetMinFilter(TextureFilter::LINEAR_MIPMAP);
+			texture.SetMagFilter(TextureFilter::LINEAR);
+			texture.RequestMipMaps();
+		}
+
+		for (FileInfo& fileInfo : Util::IterateDirectory("res/textures/will_compress", { "png", "jpg" })) {
+			Texture& texture = g_textures.emplace_back();
+			texture.SetFileInfo(fileInfo);
+			texture.SetImageDataType(ImageDataType::UNCOMPRESSED);
 			texture.SetTextureWrapMode(TextureWrapMode::REPEAT);
 			texture.SetMinFilter(TextureFilter::LINEAR_MIPMAP);
 			texture.SetMagFilter(TextureFilter::LINEAR);

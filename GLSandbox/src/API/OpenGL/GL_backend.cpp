@@ -18,11 +18,17 @@ namespace OpenGLBackend {
 	GLuint g_fullscreenWidth;
 	GLuint g_fullscreenHeight;
 
+    // Textures
 	const size_t MAX_TEXTURE_WIDTH = 4096;
 	const size_t MAX_TEXTURE_HEIGHT = 4096;
 	const size_t MAX_CHANNEL_COUNT = 4;
 	const size_t MAX_DATA_SIZE = MAX_TEXTURE_WIDTH * MAX_TEXTURE_HEIGHT * MAX_CHANNEL_COUNT;
 	std::vector<PBO> g_textureBakingPBOs;
+
+    // Buffers
+    GLuint g_vertexDataVAO = 0;
+    GLuint g_vertexDataVBO = 0;
+    GLuint g_vertexDataEBO = 0;
 
 	void Init(std::string title) {
 		std::cout << "We go through this life alone, only suffering envelops our days, and we try to make these days better.\n\n";
@@ -282,6 +288,15 @@ namespace OpenGLBackend {
         pbo->SyncStart();
         pbo->SetCustomValue(jobID);
         glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+    }
+
+    // TODO: Rewrite Mesh struct and upload all vertex data while init asset manager
+    void UploadVertexBuffers(std::vector<Vertex>&, std::vector<uint32_t>& indices) {
+        if (g_vertexDataVAO != 0) {
+            glDeleteVertexArrays(1, &g_vertexDataVAO);
+            glDeleteBuffers(1, &g_vertexDataVBO);
+            glDeleteBuffers(1, &g_vertexDataEBO);
+        }
     }
 
 	void Cleanup() {

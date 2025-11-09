@@ -1,7 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "API/OpenGL/GL_backend.h"
-#include "API/OpenGL/GL_renderer.h"
+#include "API/OpenGL/Renderer/GL_renderer.h"
 #include "AssetManagement/AssetManager.h"
 #include "Input/Input.h"
 #include "Camera/Camera.h"

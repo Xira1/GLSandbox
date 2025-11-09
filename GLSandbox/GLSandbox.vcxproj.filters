@@ -42,7 +42,7 @@
     <ClCompile Include="src\API\OpenGL\GL_backend.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\API\OpenGL\GL_renderer.cpp">
+    <ClCompile Include="src\API\OpenGL\Renderer\GL_renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Types\GameObject.cpp">
@@ -76,6 +76,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\World\Grid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\OpenGL\Renderer\RenderPasses\GL_cloud_pass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\OpenGL\Renderer\RenderPasses\GL_skybox_pass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\OpenGL\Renderer\RenderPasses\GL_grid_pass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\OpenGL\Types\GL_cubemapView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -119,7 +131,7 @@
     <ClInclude Include="src\API\OpenGL\GL_backend.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\API\OpenGL\GL_renderer.h">
+    <ClInclude Include="src\API\OpenGL\Renderer\GL_renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Types\Model.hpp">
@@ -180,6 +192,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\API\OpenGL\Types\GL_texture_3D.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\OpenGL\Types\GL_cubemapView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
