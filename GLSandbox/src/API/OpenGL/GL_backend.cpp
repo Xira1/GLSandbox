@@ -291,15 +291,42 @@ namespace OpenGLBackend {
     }
 
     // TODO: Rewrite Mesh struct and upload all vertex data while init asset manager
-    void UploadVertexBuffers(std::vector<Vertex>&, std::vector<uint32_t>& indices) {
+    void UploadVertexBuffers(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices) {
         if (g_vertexDataVAO != 0) {
             glDeleteVertexArrays(1, &g_vertexDataVAO);
             glDeleteBuffers(1, &g_vertexDataVBO);
             glDeleteBuffers(1, &g_vertexDataEBO);
         }
+
+        glGenVertexArrays(1, &g_vertexDataVAO);
+        glGenBuffers(1, &g_vertexDataVBO);
+        glGenBuffers(1, &g_vertexDataEBO);
+
+        glBindVertexArray(g_vertexDataVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, g_vertexDataVBO);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_vertexDataEBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), &indices[0], GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
+
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
     }
 
 	void Cleanup() {
 		glfwTerminate();
 	}
+
+    GLuint GetVertexDataVAO() { return g_vertexDataVAO; }
+    GLuint GetVertexDataVBO() { return g_vertexDataVBO; }
+    GLuint GetVertexDataEBO() { return g_vertexDataEBO; }
 }

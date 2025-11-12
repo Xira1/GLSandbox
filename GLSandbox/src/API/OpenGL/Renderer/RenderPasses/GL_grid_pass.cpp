@@ -3,18 +3,19 @@
 namespace OpenGLRenderer {
 	void GridPass() {
 		OpenGLShader* shader = GetShader("Grid");
-		OpenGLFrameBuffer* gBuffer = GetFrameBuffer("Main");
+		OpenGLFrameBuffer* gBuffer = GetFrameBuffer("GBuffer");
 		OpenGLDetachedMesh* mesh = AssetManager::GetCubeMesh();
 
 		gBuffer->Bind();
 		gBuffer->SetViewport();
 		gBuffer->DrawBuffers({ "Color" });
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA);
-		glDepthMask(GL_FALSE);
-
 		shader->Use();
+
+		SetRasterizerState("Grid");
+
+		glBindVertexArray(mesh->GetVAO());
+
+		glDepthMask(GL_FALSE);
 
 		glm::mat4 invViewProj = glm::inverse(Camera::GetProjectionMatrix() * Camera::GetViewMatrixPlayer());
 
@@ -24,12 +25,10 @@ namespace OpenGLRenderer {
 		shader->SetVec3("uGridColor", glm::vec3(0.5f));
 		shader->SetFloat("uGridSize", 0.2f);
 		shader->SetFloat("uMajorFactor", 10.0f);
+		
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-		glBindVertexArray(mesh->GetVAO());
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		glBindVertexArray(0);
-
+		glClear(GL_DEPTH_BUFFER_BIT);
 		glDepthMask(GL_TRUE);
-		glDisable(GL_BLEND);
 	}
 }

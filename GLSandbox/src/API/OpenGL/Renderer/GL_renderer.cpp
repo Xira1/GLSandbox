@@ -1,9 +1,6 @@
 #include "GL_renderer.h"
 
 #include "../Types/GL_texture.h"
-#include "../World/Skybox.h"
-#include "../World/VolumetricClouds/VolumetricClouds.h"
-#include "../World/Grid.h"
 #include "../Core/Scene.hpp"
 #include "../../../Util.hpp"
 
@@ -11,12 +8,16 @@ namespace OpenGLRenderer {
 	std::unordered_map<std::string, OpenGLShader> g_shaders;
 	std::unordered_map<std::string, OpenGLFrameBuffer> g_frameBuffers;
 	std::unordered_map<std::string, OpenGLCubemapView> g_cubemapView;
+	std::unordered_map<std::string, OpenGLTexture> g_textures;
+	std::unordered_map<std::string, OpenGLRasterizerState> g_rasterizerStates;
 
 	void RenderScene(OpenGLShader& shader);
 	void RenderCubePlayer();
 	void RenderLightning();
 
 	void InitMain() {
+		InitRasterizerState();
+
 		// Skybox
 		std::vector<Texture*> textures = {
 			AssetManager::GetTextureByName("right"),
@@ -29,7 +30,7 @@ namespace OpenGLRenderer {
 
 		std::vector<GLuint> texHandles;
 		for (Texture* texture : textures) {
-			if (!texture) return;
+			if (!texture) continue;
 			texHandles.push_back(texture->GetGLTexture().GetHandle());
 		}
 		if (texHandles.size() == 6) {
@@ -38,19 +39,44 @@ namespace OpenGLRenderer {
 	}
 
 	void Init() {
-		g_frameBuffers["Main"] = OpenGLFrameBuffer("Main", 1920, 1080);
-		g_frameBuffers["Main"].CreateAttachment("Color", GL_RGBA8);
-		g_frameBuffers["Main"].CreateDepthAttachment(GL_DEPTH32F_STENCIL8);
+		g_textures["PerlinNoise3D"] = OpenGLTexture();
+		g_textures["PerlinNoise3D"].Texture3D(128, 128, 128);
+
+		g_textures["Wolrey3D"] = OpenGLTexture();
+		g_textures["Worley3D"].Texture3D(32, 32, 32);
+
+		g_textures["WeatherMap"] = OpenGLTexture();
+		g_textures["WeatherMap"].Texture2D(1024, 1024);
+
+		g_frameBuffers["GBuffer"] = OpenGLFrameBuffer("Main", 1920, 1080);
+		g_frameBuffers["GBuffer"].CreateAttachment("BaseColor", GL_RGBA8);
+		g_frameBuffers["GBuffer"].CreateAttachment("Normal", GL_RGBA16F);
+		g_frameBuffers["GBuffer"].CreateAttachment("RMA", GL_RGBA8);
+		g_frameBuffers["GBuffer"].CreateAttachment("FinalLighting", GL_RGBA16F, GL_LINEAR, GL_LINEAR);
+		g_frameBuffers["GBuffer"].CreateAttachment("WorldPosition", GL_RGBA32F);
+		g_frameBuffers["GBuffer"].CreateAttachment("Emissive", GL_RGBA8);
+		g_frameBuffers["GBuffer"].CreateDepthAttachment(GL_DEPTH32F_STENCIL8);
+
+		g_frameBuffers["CloudsMain"] = OpenGLFrameBuffer("CloudsMain", 1920, 1080);
+		g_frameBuffers["CloudsMain"].CreateAttachment("Color", GL_RGBA16F);
+		g_frameBuffers["CloudsMain"].CreateDepthAttachment(GL_DEPTH32F_STENCIL8);
+
+		g_frameBuffers["CloudsPost"] = OpenGLFrameBuffer("CloudsPostProcess", 1920, 1080);
+		g_frameBuffers["CloudsPost"].CreateAttachment("Color", GL_RGBA16F);
+
+		g_frameBuffers["FinalImage"] = OpenGLFrameBuffer("FinalImage", 1920, 1080);
+		g_frameBuffers["FinalImage"].CreateAttachment("Color", GL_RGBA16F);
 
 		LoadShaders();
+		
+		InitClouds();
 	}
 
 	void RenderFrame() {
-		OpenGLFrameBuffer* gBuffer = GetFrameBuffer("Main");
+		OpenGLFrameBuffer& gBuffer = g_frameBuffers["GBuffer"];
+		OpenGLFrameBuffer& finalImageBuffer = g_frameBuffers["FinalImage"];
 
-		gBuffer->Bind();
-		gBuffer->SetViewport();
-		gBuffer->DrawBuffers({ "Color" });
+		gBuffer.Bind();
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -64,7 +90,7 @@ namespace OpenGLRenderer {
 		int width, height;
 		glfwGetWindowSize(OpenGLBackend::GetWindowPtr(), &width, &height);
 
-		gBuffer->BlitToDefaultFrameBuffer("Color", 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		gBuffer.BlitToDefaultFrameBuffer(&gBuffer, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
 		glfwSwapBuffers(OpenGLBackend::GetWindowPtr());
 		glfwPollEvents();
@@ -89,7 +115,7 @@ namespace OpenGLRenderer {
 
 	void RenderLightning() {
 		OpenGLShader* shader = GetShader("Light");
-		OpenGLFrameBuffer* gBuffer = GetFrameBuffer("Main");
+		OpenGLFrameBuffer* gBuffer = GetFrameBuffer("GBuffer");
 
 		gBuffer->Bind();
 		gBuffer->SetViewport();
@@ -113,7 +139,7 @@ namespace OpenGLRenderer {
 
 	void RenderCubePlayer() {
 		OpenGLShader* shader = GetShader("SolidColor");
-		OpenGLFrameBuffer* gBuffer = GetFrameBuffer("Main");
+		OpenGLFrameBuffer* gBuffer = GetFrameBuffer("GBuffer");
 		OpenGLDetachedMesh* cubeMeshPlayer = AssetManager::GetCubeMesh();
 
 		gBuffer->Bind();
@@ -146,7 +172,7 @@ namespace OpenGLRenderer {
 		g_shaders["Grid"] = OpenGLShader({ "GL_grid.vert", "GL_grid.frag" });
 		g_shaders["Light"] = OpenGLShader({ "GL_light.vert", "GL_light.frag" });
 
-		g_shaders["Clouds"] = OpenGLShader({ "Clouds/GL_volumetric_clouds.comp" });
+		g_shaders["VolumetricClouds"] = OpenGLShader({ "Clouds/GL_volumetric_clouds.comp" });
 		g_shaders["Perlinworley"] = OpenGLShader({ "Clouds/perlinworley.comp" });
 		g_shaders["Worley"] = OpenGLShader({ "Clouds/worley.comp" });
 		g_shaders["Weather"] = OpenGLShader({ "Clouds/GL_weather.comp" });
@@ -170,5 +196,43 @@ namespace OpenGLRenderer {
 	OpenGLShader* GetShader(const std::string& name) {
 		auto it = g_shaders.find(name);
 		return (it != g_shaders.end()) ? &it->second : nullptr;
+	}
+
+	OpenGLTexture* GetTexture(const std::string& name) {
+		auto it = g_textures.find(name);
+		return (it != g_textures.end()) ? &it->second : nullptr;
+	}
+
+	OpenGLRasterizerState* GetRasterizerState(const std::string& name) {
+		auto it = g_rasterizerStates.find(name);
+		return (it != g_rasterizerStates.end()) ? &it->second : nullptr;
+	}
+
+	OpenGLRasterizerState* CreateRasterizerState(const std::string& name) {
+		g_rasterizerStates[name] = OpenGLRasterizerState();
+		return &g_rasterizerStates[name];
+	}
+
+	void SetRasterizerState(const std::string& name) {
+		OpenGLRasterizerState* rasterizerState = GetRasterizerState(name);
+		if (!rasterizerState) {
+			std::cout << "OpenGLRenderer::SetRasterizerState(const std::string& name) failed, because " << name << " does not exist\n";
+			return;
+		}
+
+		rasterizerState->blendEnabled ? glEnable(GL_BLEND) : glDisable(GL_BLEND);
+		rasterizerState->cullfaceEnabled ? glEnable(GL_CULL_FACE) : glDisable(GL_CULL_FACE);
+		rasterizerState->depthMask ? glDepthMask(GL_TRUE) : glDepthMask(GL_FALSE);
+		rasterizerState->depthTestEnabled ? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
+
+		if (rasterizerState->blendEnabled) {
+			glBlendFunc(rasterizerState->blendFuncSrcfactor, rasterizerState->blendFuncDstfactor);
+		}
+		if (rasterizerState->depthTestEnabled) {
+			glDepthFunc(rasterizerState->dethFunc);
+		}
+		if (rasterizerState->pointSize > 1.0f) {
+			glPointSize(rasterizerState->pointSize);
+		}
 	}
 }

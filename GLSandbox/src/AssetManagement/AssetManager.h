@@ -22,6 +22,7 @@ namespace AssetManager {
 	Model* CreateModel(const std::string& name);
 	Model* GetModelByIndex(int index);
 	Model* GetModelByName(const std::string& name);
+	void BuildPrimitives();
 
 	// Material
 	int GetMaterialIndex(const std::string& name);
