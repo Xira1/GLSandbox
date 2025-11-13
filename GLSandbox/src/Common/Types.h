@@ -114,3 +114,15 @@ struct QueuedTextureBake {
 	const void* data = nullptr;
 	bool inProgress = false;
 };
+
+struct BlitRect {
+	int32_t x0 = 0;
+	int32_t y0 = 0;
+	int32_t x1 = 0;
+	int32_t y1 = 0;
+};
+
+struct Resolutions {
+	glm::ivec2 gBuffer;
+	glm::ivec2 finalImage;
+};

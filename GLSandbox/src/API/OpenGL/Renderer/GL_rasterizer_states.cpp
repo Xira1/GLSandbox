@@ -15,6 +15,7 @@ namespace OpenGLRenderer {
 		grid->cullfaceEnabled = false;
 		grid->depthTestEnabled = false;
 		grid->depthMask = false;
-		grid->dethFunc = GL_SRC_COLOR, GL_ONE_MINUS_SRC_ALPHA;
+		grid->blendFuncSrcfactor = GL_SRC_ALPHA;
+		grid->blendFuncDstfactor = GL_ONE_MINUS_SRC_ALPHA;
 	}
 }

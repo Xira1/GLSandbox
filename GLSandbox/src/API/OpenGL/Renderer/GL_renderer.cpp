@@ -11,6 +11,8 @@ namespace OpenGLRenderer {
 	std::unordered_map<std::string, OpenGLTexture> g_textures;
 	std::unordered_map<std::string, OpenGLRasterizerState> g_rasterizerStates;
 
+	Resolutions g_resolutions;
+
 	void RenderScene(OpenGLShader& shader);
 	void RenderCubePlayer();
 	void RenderLightning();
@@ -48,7 +50,7 @@ namespace OpenGLRenderer {
 		g_textures["WeatherMap"] = OpenGLTexture();
 		g_textures["WeatherMap"].Texture2D(1024, 1024);
 
-		g_frameBuffers["GBuffer"] = OpenGLFrameBuffer("Main", 1920, 1080);
+		g_frameBuffers["GBuffer"] = OpenGLFrameBuffer("GBuffer", 1920, 1080);
 		g_frameBuffers["GBuffer"].CreateAttachment("BaseColor", GL_RGBA8);
 		g_frameBuffers["GBuffer"].CreateAttachment("Normal", GL_RGBA16F);
 		g_frameBuffers["GBuffer"].CreateAttachment("RMA", GL_RGBA8);
@@ -77,6 +79,8 @@ namespace OpenGLRenderer {
 		OpenGLFrameBuffer& finalImageBuffer = g_frameBuffers["FinalImage"];
 
 		gBuffer.Bind();
+		gBuffer.DrawBuffers({"BaseColor"});
+
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -90,7 +94,8 @@ namespace OpenGLRenderer {
 		int width, height;
 		glfwGetWindowSize(OpenGLBackend::GetWindowPtr(), &width, &height);
 
-		gBuffer.BlitToDefaultFrameBuffer(&gBuffer, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		OpenGLRenderer::BlitFrameBuffer(&gBuffer, &finalImageBuffer, "FinalLighting", "Color", GL_COLOR_BUFFER_BIT, GL_LINEAR);
+		gBuffer.BlitToDefaultFrameBuffer("BaseColor", 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
 		glfwSwapBuffers(OpenGLBackend::GetWindowPtr());
 		glfwPollEvents();
@@ -119,7 +124,7 @@ namespace OpenGLRenderer {
 
 		gBuffer->Bind();
 		gBuffer->SetViewport();
-		gBuffer->DrawBuffers({ "Color" });
+		gBuffer->DrawBuffers({ "BaseColor" });
 
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
@@ -144,7 +149,7 @@ namespace OpenGLRenderer {
 
 		gBuffer->Bind();
 		gBuffer->SetViewport();
-		gBuffer->DrawBuffers({ "Color" });
+		gBuffer->DrawBuffers({ "BaseColor" });
 
 		glEnable(GL_DEPTH_TEST);
 		if (Camera::GetCameraMode() == Camera::CameraMode::FIRST_PERSON) {
@@ -153,7 +158,7 @@ namespace OpenGLRenderer {
 
 		Transform player;
 		player.position = Camera::GetPlayerPos();
-		player.scale = glm::vec3(0.2f);
+		player.scale = glm::vec3(0.1f);
 
 		shader->Use();
 		shader->SetVec3("uniformColor", glm::vec3(1.0f, 1.0f, 0.0f));
@@ -211,6 +216,10 @@ namespace OpenGLRenderer {
 	OpenGLRasterizerState* CreateRasterizerState(const std::string& name) {
 		g_rasterizerStates[name] = OpenGLRasterizerState();
 		return &g_rasterizerStates[name];
+	}
+
+	Resolutions& GetResolutions() {
+		return g_resolutions;
 	}
 
 	void SetRasterizerState(const std::string& name) {

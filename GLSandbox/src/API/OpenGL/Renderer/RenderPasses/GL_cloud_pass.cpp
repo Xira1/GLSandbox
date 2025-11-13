@@ -69,6 +69,6 @@ namespace OpenGLRenderer {
 		glActiveTexture(GL_TEXTURE3);
 		glBindTexture(GL_TEXTURE_2D, gBuffer->GetDepthAttachmentHandle());
 		glActiveTexture(GL_TEXTURE4);
-		glBindTexture(GL_TEXTURE_2D, gBuffer->GetColorAttachmentByIndex(0));
+		glBindTexture(GL_TEXTURE_2D, gBuffer->GetColorAttachmentSlotByName("BaseColor"));
 	}
 }

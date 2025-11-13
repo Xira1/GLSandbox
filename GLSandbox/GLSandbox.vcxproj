@@ -95,10 +95,12 @@
       <FileType>Document</FileType>
     </None>
     <ClCompile Include="src\API\OpenGL\Renderer\GL_rasterizer_states.cpp" />
+    <ClCompile Include="src\API\OpenGL\Renderer\GL_renderer_utils.cpp" />
     <ClCompile Include="src\API\OpenGL\Renderer\RenderPasses\GL_cloud_pass.cpp" />
     <ClCompile Include="src\API\OpenGL\Renderer\RenderPasses\GL_grid_pass.cpp" />
     <ClCompile Include="src\API\OpenGL\Renderer\RenderPasses\GL_skybox_pass.cpp" />
     <ClCompile Include="src\API\OpenGL\Types\GL_cubemapView.cpp" />
+    <ClCompile Include="src\API\OpenGL\Types\GL_framebuffer.cpp" />
     <ClCompile Include="src\AssetManagement\AssetManager.cpp" />
     <ClCompile Include="src\AssetManagement\BakeQueue\BakeQueue.cpp" />
     <ClCompile Include="src\Camera\Viewer.cpp" />
@@ -114,14 +116,13 @@
     <ClCompile Include="src\Camera\Camera.cpp" />
     <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\Types\Texture.cpp" />
-    <ClCompile Include="src\World\VolumetricClouds\VolumetricClouds.cpp" />
     <ClCompile Include="vendor\glad\src\glad.c" />
     <ClCompile Include="vendor\stb_image\stb_image.cpp" />
     <ClCompile Include="vendor\tinyexr\tinyexr.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\API\OpenGL\Types\GL_cubemapView.h" />
-    <ClInclude Include="src\API\OpenGL\Types\GL_framebuffer.hpp" />
+    <ClInclude Include="src\API\OpenGL\Types\GL_framebuffer.h" />
     <ClInclude Include="src\API\OpenGL\Types\GL_pbo.hpp" />
     <ClInclude Include="src\API\OpenGL\Types\GL_texture_3D.hpp" />
     <ClInclude Include="src\API\OpenGL\Utils\GL_utils.hpp" />
@@ -150,7 +151,6 @@
     <ClInclude Include="src\Util.hpp" />
     <ClInclude Include="src\Types\Texture.h" />
     <ClInclude Include="src\World\Room\Room.hpp" />
-    <ClInclude Include="src\World\VolumetricClouds\VolumetricClouds.h" />
     <ClInclude Include="vendor\stb_image\stb_image.h" />
     <ClInclude Include="vendor\stb_image\stb_image_write.h" />
   </ItemGroup>

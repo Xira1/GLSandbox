@@ -8,7 +8,6 @@ namespace OpenGLRenderer {
 		OpenGLDetachedMesh* mesh = AssetManager::GetCubeMesh();
 		
 		gBuffer->Bind();
-		gBuffer->SetViewport();
 		gBuffer->DrawBuffers({ "FinalLighting", "WorldPosition" });
 		shader->Use();
 
@@ -16,12 +15,12 @@ namespace OpenGLRenderer {
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxCubemapView->GetHandle());
-		glBindVertexArray(OpenGLBackend::GetVertexDataVAO());
+		glBindVertexArray(mesh->GetVAO());
 
 		glDepthMask(GL_FALSE);
 
 		Transform skyboxTransform;
-		skyboxTransform.position = Camera::GetEyePosition();
+		skyboxTransform.position = Camera::GetViewPos();
 		skyboxTransform.scale = glm::vec3(200.0f);
 
 		shader->SetMat4("u_modelMatrix", skyboxTransform.to_mat4());

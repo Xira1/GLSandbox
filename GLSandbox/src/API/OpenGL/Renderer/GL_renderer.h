@@ -37,6 +37,7 @@ namespace OpenGLRenderer {
 	OpenGLFrameBuffer* GetFrameBuffer(const std::string& name);
 	OpenGLShader* GetShader(const std::string& name);
 	OpenGLTexture* GetTexture(const std::string& name);
+	Resolutions& GetResolutions();
 
 	// Rasterizer states
 	void InitRasterizerState();
@@ -45,6 +46,8 @@ namespace OpenGLRenderer {
 	void SetRasterizerState(const std::string& name);
 
 	// Frame buffers
+	void BlitFrameBuffer(OpenGLFrameBuffer* srcFrameBuffer, OpenGLFrameBuffer* dstFrameBuffer, const char* srcName, const char* dstName, GLbitfield mask, GLenum filter);
+
 
 	// Debug another day
 	

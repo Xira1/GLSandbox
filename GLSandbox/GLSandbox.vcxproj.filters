@@ -69,9 +69,6 @@
     <ClCompile Include="src\AssetManagement\BakeQueue\BakeQueue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\World\VolumetricClouds\VolumetricClouds.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\API\OpenGL\Renderer\RenderPasses\GL_cloud_pass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -85,6 +82,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\API\OpenGL\Renderer\GL_rasterizer_states.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\OpenGL\Types\GL_framebuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\OpenGL\Renderer\GL_renderer_utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -167,7 +170,7 @@
     <ClInclude Include="src\API\OpenGL\Utils\GL_utils.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\API\OpenGL\Types\GL_framebuffer.hpp">
+    <ClInclude Include="src\API\OpenGL\Types\GL_framebuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\API\OpenGL\Types\GL_pbo.hpp">
@@ -177,9 +180,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\World\Room\Room.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\World\VolumetricClouds\VolumetricClouds.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\API\OpenGL\Types\GL_texture_3D.hpp">
