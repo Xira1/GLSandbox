@@ -8,8 +8,6 @@
 struct OpenGLTexture {
 public:
 	OpenGLTexture() = default;
-	unsigned int Texture3D(float w, float h, float d);
-	unsigned int Texture2D(float w, float h);
 	void Bind(unsigned int slot);
 	void SetWrapMode(TextureWrapMode wrapMode);
 	void SetMinFilter(TextureFilter filter);

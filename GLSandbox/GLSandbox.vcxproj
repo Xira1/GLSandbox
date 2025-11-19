@@ -90,10 +90,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="res\shaders\common\types.glsl" />
-    <None Include="res\shaders\OpenGL\Clouds\GL_clouds_post.frag" />
-    <None Include="res\shaders\OpenGL\Clouds\GL_volumetric_clouds.comp">
-      <FileType>Document</FileType>
-    </None>
     <ClCompile Include="src\API\OpenGL\Renderer\GL_rasterizer_states.cpp" />
     <ClCompile Include="src\API\OpenGL\Renderer\GL_renderer_utils.cpp" />
     <ClCompile Include="src\API\OpenGL\Renderer\RenderPasses\GL_cloud_pass.cpp" />
@@ -101,6 +97,8 @@
     <ClCompile Include="src\API\OpenGL\Renderer\RenderPasses\GL_skybox_pass.cpp" />
     <ClCompile Include="src\API\OpenGL\Types\GL_cubemapView.cpp" />
     <ClCompile Include="src\API\OpenGL\Types\GL_framebuffer.cpp" />
+    <ClCompile Include="src\API\OpenGL\Types\GL_screenQuad.cpp" />
+    <ClCompile Include="src\API\OpenGL\Types\GL_texture_3d.cpp" />
     <ClCompile Include="src\AssetManagement\AssetManager.cpp" />
     <ClCompile Include="src\AssetManagement\BakeQueue\BakeQueue.cpp" />
     <ClCompile Include="src\Camera\Viewer.cpp" />
@@ -124,6 +122,8 @@
     <ClInclude Include="src\API\OpenGL\Types\GL_cubemapView.h" />
     <ClInclude Include="src\API\OpenGL\Types\GL_framebuffer.h" />
     <ClInclude Include="src\API\OpenGL\Types\GL_pbo.hpp" />
+    <ClInclude Include="src\API\OpenGL\Types\GL_screenQuad.h" />
+    <ClInclude Include="src\API\OpenGL\Types\GL_texture_3d.h" />
     <ClInclude Include="src\API\OpenGL\Types\GL_texture_3D.hpp" />
     <ClInclude Include="src\API\OpenGL\Utils\GL_utils.hpp" />
     <ClInclude Include="src\AssetManagement\AssetManager.h" />
@@ -131,6 +131,7 @@
     <ClInclude Include="src\Camera\Viewer.h" />
     <ClInclude Include="src\Common\CreateInfo.h" />
     <ClInclude Include="src\Common\Enums.h" />
+    <ClInclude Include="src\Core\SceneElements.h" />
     <ClInclude Include="src\Types\TextureTools\DDS.h" />
     <ClInclude Include="src\Types\TextureTools\TextureTools.h" />
     <ClInclude Include="src\Importer\AssimpImporter.h" />
@@ -155,17 +156,13 @@
     <ClInclude Include="vendor\stb_image\stb_image_write.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\shaders\OpenGL\Clouds\GL_weather.comp" />
     <None Include="res\shaders\OpenGL\GL_grid.vert" />
-    <None Include="res\shaders\OpenGL\GL_post_processing.frag" />
     <None Include="res\shaders\OpenGL\GL_skybox.frag" />
     <None Include="res\shaders\OpenGL\GL_skybox.vert" />
     <None Include="res\shaders\OpenGL\GL_solid_color.frag" />
     <None Include="res\shaders\OpenGL\GL_solid_color.vert" />
     <None Include="res\shaders\OpenGL\GL_light.frag" />
     <None Include="res\shaders\OpenGL\GL_light.vert" />
-    <None Include="res\shaders\OpenGL\Clouds\perlinworley.comp" />
-    <None Include="res\shaders\OpenGL\Clouds\worley.comp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\shaders\OpenGL\GL_grid.frag" />

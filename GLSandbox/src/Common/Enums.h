@@ -1,5 +1,10 @@
 #pragma once
 
+enum class CameraMode { 
+	FIRST_PERSON, 
+	THIRD_PERSON 
+};
+
 enum class LoadingState {
 	AWAITING_LOADING_FROM_DISK,
 	LOADING_FROM_DISK,

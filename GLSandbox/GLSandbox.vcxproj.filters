@@ -90,6 +90,12 @@
     <ClCompile Include="src\API\OpenGL\Renderer\GL_renderer_utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\API\OpenGL\Types\GL_texture_3d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\OpenGL\Types\GL_screenQuad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vendor\stb_image\stb_image_write.h">
@@ -188,6 +194,15 @@
     <ClInclude Include="src\API\OpenGL\Types\GL_cubemapView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\API\OpenGL\Types\GL_texture_3d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\OpenGL\Types\GL_screenQuad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Core\SceneElements.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\OpenGL\GL_solid_color.vert" />
@@ -197,14 +212,6 @@
     <None Include="res\shaders\OpenGL\GL_grid.vert" />
     <None Include="res\shaders\OpenGL\GL_light.vert" />
     <None Include="res\shaders\OpenGL\GL_light.frag" />
-    <None Include="res\shaders\OpenGL\Clouds\perlinworley.comp" />
-    <None Include="res\shaders\OpenGL\Clouds\worley.comp" />
-    <None Include="res\shaders\OpenGL\Clouds\GL_volumetric_clouds.comp">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="res\shaders\OpenGL\Clouds\GL_clouds_post.frag" />
-    <None Include="res\shaders\OpenGL\GL_post_processing.frag" />
-    <None Include="res\shaders\OpenGL\Clouds\GL_weather.comp" />
     <None Include="res\shaders\common\types.glsl" />
   </ItemGroup>
   <ItemGroup>

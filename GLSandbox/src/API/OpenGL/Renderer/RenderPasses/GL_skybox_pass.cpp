@@ -15,14 +15,14 @@ namespace OpenGLRenderer {
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxCubemapView->GetHandle());
-		glBindVertexArray(mesh->GetVAO());
-
+		glBindVertexArray(OpenGLBackend::GetVertexDataVAO());
 		glDepthMask(GL_FALSE);
 
 		Transform skyboxTransform;
-		skyboxTransform.position = Camera::GetViewPos();
+		skyboxTransform.position = Camera::GetInstance().GetPosition();
 		skyboxTransform.scale = glm::vec3(200.0f);
 
+		shader->SetInt("skybox", 0);
 		shader->SetMat4("u_modelMatrix", skyboxTransform.to_mat4());
 
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);

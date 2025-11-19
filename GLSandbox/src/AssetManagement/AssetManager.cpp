@@ -26,6 +26,7 @@ namespace AssetManager {
 	std::unordered_map<std::string, int> g_textureIndexMap;
 	std::unordered_map<std::string, int> g_materialIndexMap;
 
+	// Buffers
 	std::vector<Vertex> g_vertices;
 	std::vector<uint32_t> g_indices;
 

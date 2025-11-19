@@ -13,7 +13,7 @@ out vec4 WorldPos;
 uniform mat4 u_modelMatrix;
 
 void main() {
-    TexCoords = -inPosition;
+    TexCoords = inPosition;
     int viewportIdx = gl_BaseInstance;
     mat4 projectionView = viewportData[viewportIdx].skyboxProjectionView;
     vec3 viewPos = viewportData[viewportIdx].inverseView[3].xyz;

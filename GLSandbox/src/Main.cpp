@@ -15,7 +15,7 @@ void Init(const std::string& title) {
     AssetManager::Init();
     Scene::Init();
     Input::Init(OpenGLBackend::GetWindowPtr());
-    Camera::Init(OpenGLBackend::GetWindowPtr());
+    Camera::GetInstance().Init(OpenGLBackend::GetWindowPtr());
     Scene::CreateGameObjects();
     OpenGLRenderer::Init();
 }
@@ -30,7 +30,7 @@ void Update() {
     Scene::SetMaterials();
     AssetManager::Update();
     Input::Update();
-    Camera::Update(deltaTime);
+    Camera::GetInstance().Update(deltaTime);
     Scene::Update(deltaTime);
     if (Input::KeyPressed(GLFW_KEY_ESCAPE)) {
         glfwSetWindowShouldClose(OpenGLBackend::GetWindowPtr(), true);

@@ -3,15 +3,14 @@
 #include "../Types/GL_texture.h"
 #include "../Core/Scene.hpp"
 #include "../../../Util.hpp"
+#include "Enums.h"
 
 namespace OpenGLRenderer {
 	std::unordered_map<std::string, OpenGLShader> g_shaders;
 	std::unordered_map<std::string, OpenGLFrameBuffer> g_frameBuffers;
 	std::unordered_map<std::string, OpenGLCubemapView> g_cubemapView;
-	std::unordered_map<std::string, OpenGLTexture> g_textures;
+	std::unordered_map<std::string, OpenGLTexture3D> g_3dTextures;
 	std::unordered_map<std::string, OpenGLRasterizerState> g_rasterizerStates;
-
-	Resolutions g_resolutions;
 
 	void RenderScene(OpenGLShader& shader);
 	void RenderCubePlayer();
@@ -34,21 +33,16 @@ namespace OpenGLRenderer {
 		for (Texture* texture : textures) {
 			if (!texture) continue;
 			texHandles.push_back(texture->GetGLTexture().GetHandle());
-		}
-		if (texHandles.size() == 6) {
-			g_cubemapView["SkyboxNightSky"] = OpenGLCubemapView(texHandles);
+
+			if (texHandles.size() == 6) {
+				g_cubemapView["SkyboxNightSky"] = OpenGLCubemapView(texHandles);
+			}
 		}
 	}
 
 	void Init() {
-		g_textures["PerlinNoise3D"] = OpenGLTexture();
-		g_textures["PerlinNoise3D"].Texture3D(128, 128, 128);
-
-		g_textures["Wolrey3D"] = OpenGLTexture();
-		g_textures["Worley3D"].Texture3D(32, 32, 32);
-
-		g_textures["WeatherMap"] = OpenGLTexture();
-		g_textures["WeatherMap"].Texture2D(1024, 1024);
+		g_3dTextures["PerlinNoise"] = OpenGLTexture3D();
+		g_3dTextures["PerlinNoise"].Create(128, GL_R32F);
 
 		g_frameBuffers["GBuffer"] = OpenGLFrameBuffer("GBuffer", 1920, 1080);
 		g_frameBuffers["GBuffer"].CreateAttachment("BaseColor", GL_RGBA8);
@@ -59,18 +53,18 @@ namespace OpenGLRenderer {
 		g_frameBuffers["GBuffer"].CreateAttachment("Emissive", GL_RGBA8);
 		g_frameBuffers["GBuffer"].CreateDepthAttachment(GL_DEPTH32F_STENCIL8);
 
-		g_frameBuffers["CloudsMain"] = OpenGLFrameBuffer("CloudsMain", 1920, 1080);
-		g_frameBuffers["CloudsMain"].CreateAttachment("Color", GL_RGBA16F);
-		g_frameBuffers["CloudsMain"].CreateDepthAttachment(GL_DEPTH32F_STENCIL8);
+		g_frameBuffers["CloudsBuffer"] = OpenGLFrameBuffer("CloudsBuffer", 1920, 1080);
+		g_frameBuffers["CloudsBuffer"].CreateAttachment("Color", GL_RGBA16F);
+		g_frameBuffers["CloudsBuffer"].CreateDepthAttachment(GL_DEPTH32F_STENCIL8);
 
-		g_frameBuffers["CloudsPost"] = OpenGLFrameBuffer("CloudsPostProcess", 1920, 1080);
-		g_frameBuffers["CloudsPost"].CreateAttachment("Color", GL_RGBA16F);
+		g_frameBuffers["CloudsPostProcessBuffer"] = OpenGLFrameBuffer("CloudsPostProcessBuffer", 1920, 1080);
+		g_frameBuffers["CloudsPostProcessBuffer"].CreateAttachment("Color", GL_RGBA16F);
 
 		g_frameBuffers["FinalImage"] = OpenGLFrameBuffer("FinalImage", 1920, 1080);
 		g_frameBuffers["FinalImage"].CreateAttachment("Color", GL_RGBA16F);
 
 		LoadShaders();
-		
+
 		InitClouds();
 	}
 
@@ -79,23 +73,22 @@ namespace OpenGLRenderer {
 		OpenGLFrameBuffer& finalImageBuffer = g_frameBuffers["FinalImage"];
 
 		gBuffer.Bind();
-		gBuffer.DrawBuffers({"BaseColor"});
 
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glDisable(GL_DITHER);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		SkyBoxPass();
 		GridPass();
-		CloudsPass();
-
 		RenderLightning();
 		RenderCubePlayer();
+
+		CloudsPass();
 
 		int width, height;
 		glfwGetWindowSize(OpenGLBackend::GetWindowPtr(), &width, &height);
 
 		OpenGLRenderer::BlitFrameBuffer(&gBuffer, &finalImageBuffer, "FinalLighting", "Color", GL_COLOR_BUFFER_BIT, GL_LINEAR);
-		gBuffer.BlitToDefaultFrameBuffer("BaseColor", 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		OpenGLRenderer::BlitToDefaultFrameBuffer(&gBuffer, "BaseColor", GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
 		glfwSwapBuffers(OpenGLBackend::GetWindowPtr());
 		glfwPollEvents();
@@ -132,10 +125,10 @@ namespace OpenGLRenderer {
 		GameObject* Lattern = Scene::GetGameObjectByName("Lattern");
 
 		shader->Use();
-		shader->SetMat4("projection", Camera::GetProjectionMatrix());
-		shader->SetMat4("view", Camera::GetViewMatrixPlayer());
+		shader->SetMat4("projection", Camera::GetInstance().GetProjectionMatrix());
+		shader->SetMat4("view", Camera::GetInstance().GetViewMatrixPlayer());
 		shader->SetMat4("model", glm::mat4(1));
-		shader->SetVec3("viewPos", Camera::GetViewPos());
+		shader->SetVec3("viewPos", Camera::GetInstance().GetPosition());
 		shader->SetVec3("lightPos", Lattern->GetModelPosition() + glm::vec3(0.0f, 0.2f, 0.0f));
 		shader->SetVec3("lightColor", glm::vec3(1.0f, 0.96f, 0.9f));
 		shader->SetFloat("lightIntensity", 1.0f);
@@ -152,18 +145,18 @@ namespace OpenGLRenderer {
 		gBuffer->DrawBuffers({ "BaseColor" });
 
 		glEnable(GL_DEPTH_TEST);
-		if (Camera::GetCameraMode() == Camera::CameraMode::FIRST_PERSON) {
+		if (Camera::GetInstance().GetCameraMode() == CameraMode::FIRST_PERSON) {
 			return;
 		}
 
 		Transform player;
-		player.position = Camera::GetPlayerPos();
+		player.position = Camera::GetInstance().GetPosition();
 		player.scale = glm::vec3(0.1f);
 
 		shader->Use();
 		shader->SetVec3("uniformColor", glm::vec3(1.0f, 1.0f, 0.0f));
-		shader->SetMat4("view", Camera::GetViewMatrixPlayer());
-		shader->SetMat4("projection", Camera::GetProjectionMatrix());
+		shader->SetMat4("view", Camera::GetInstance().GetViewMatrixPlayer());
+		shader->SetMat4("projection", Camera::GetInstance().GetProjectionMatrix());
 		shader->SetMat4("model", player.to_mat4());
 
 		glBindVertexArray(cubeMeshPlayer->GetVAO());
@@ -177,11 +170,8 @@ namespace OpenGLRenderer {
 		g_shaders["Grid"] = OpenGLShader({ "GL_grid.vert", "GL_grid.frag" });
 		g_shaders["Light"] = OpenGLShader({ "GL_light.vert", "GL_light.frag" });
 
-		g_shaders["VolumetricClouds"] = OpenGLShader({ "Clouds/GL_volumetric_clouds.comp" });
-		g_shaders["Perlinworley"] = OpenGLShader({ "Clouds/perlinworley.comp" });
-		g_shaders["Worley"] = OpenGLShader({ "Clouds/worley.comp" });
-		g_shaders["Weather"] = OpenGLShader({ "Clouds/GL_weather.comp" });
-		g_shaders["CloudsPostProcess"] = OpenGLShader({ "Clouds/GL_clouds_post.frag" });
+		g_shaders["VolumetricClouds"] = OpenGLShader({ "GL_volumetric_clouds.comp" });
+		g_shaders["Perlinworley"] = OpenGLShader({ "GL_perlinworley.comp" });
 
 		g_shaders["PostProcessing"] = OpenGLShader({ "GL_post_processing.frag" });
 
@@ -203,9 +193,9 @@ namespace OpenGLRenderer {
 		return (it != g_shaders.end()) ? &it->second : nullptr;
 	}
 
-	OpenGLTexture* GetTexture(const std::string& name) {
-		auto it = g_textures.find(name);
-		return (it != g_textures.end()) ? &it->second : nullptr;
+	OpenGLTexture3D* GetTexture3D(const std::string& name) {
+		auto it = g_3dTextures.find(name);
+		return (it != g_3dTextures.end()) ? &it->second : nullptr;
 	}
 
 	OpenGLRasterizerState* GetRasterizerState(const std::string& name) {
@@ -216,10 +206,6 @@ namespace OpenGLRenderer {
 	OpenGLRasterizerState* CreateRasterizerState(const std::string& name) {
 		g_rasterizerStates[name] = OpenGLRasterizerState();
 		return &g_rasterizerStates[name];
-	}
-
-	Resolutions& GetResolutions() {
-		return g_resolutions;
 	}
 
 	void SetRasterizerState(const std::string& name) {

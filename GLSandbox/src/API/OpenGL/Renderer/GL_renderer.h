@@ -4,6 +4,7 @@
 #include "../Types/GL_shader.h"
 #include "../Types/GL_cubemapView.h"
 #include "../Types/GL_detachedMesh.hpp"
+#include "../Types/GL_texture_3d.h"
 #include "../Camera/Camera.h"
 #include "../AssetManagement/AssetManager.h"
 #include "../GL_backend.h"
@@ -36,8 +37,7 @@ namespace OpenGLRenderer {
 	OpenGLCubemapView* GetCubemapView(const std::string& name);
 	OpenGLFrameBuffer* GetFrameBuffer(const std::string& name);
 	OpenGLShader* GetShader(const std::string& name);
-	OpenGLTexture* GetTexture(const std::string& name);
-	Resolutions& GetResolutions();
+	OpenGLTexture3D* GetTexture3D(const std::string& name);
 
 	// Rasterizer states
 	void InitRasterizerState();
@@ -47,7 +47,7 @@ namespace OpenGLRenderer {
 
 	// Frame buffers
 	void BlitFrameBuffer(OpenGLFrameBuffer* srcFrameBuffer, OpenGLFrameBuffer* dstFrameBuffer, const char* srcName, const char* dstName, GLbitfield mask, GLenum filter);
-
+	void BlitToDefaultFrameBuffer(OpenGLFrameBuffer* srcFrameBuffer, const char* name, GLbitfield mask, GLenum filter);
 
 	// Debug another day
 	
