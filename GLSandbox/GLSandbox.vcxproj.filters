@@ -90,10 +90,7 @@
     <ClCompile Include="src\API\OpenGL\Renderer\GL_renderer_utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\API\OpenGL\Types\GL_texture_3d.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\API\OpenGL\Types\GL_screenQuad.cpp">
+    <ClCompile Include="src\Types\TextureSet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -114,9 +111,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Common\Types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Common\Primitives.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Camera\Camera.h">
@@ -194,13 +188,10 @@
     <ClInclude Include="src\API\OpenGL\Types\GL_cubemapView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\API\OpenGL\Types\GL_texture_3d.h">
+    <ClInclude Include="src\Types\TextureSet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\API\OpenGL\Types\GL_screenQuad.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\SceneElements.h">
+    <ClInclude Include="src\Core\Singleton.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -213,6 +204,13 @@
     <None Include="res\shaders\OpenGL\GL_light.vert" />
     <None Include="res\shaders\OpenGL\GL_light.frag" />
     <None Include="res\shaders\common\types.glsl" />
+    <None Include="res\shaders\OpenGL\GL_worley.comp" />
+    <None Include="res\shaders\OpenGL\GL_volumetric_clouds.comp" />
+    <None Include="res\shaders\OpenGL\GL_weather.comp" />
+    <None Include="res\shaders\OpenGL\GL_screen.vert" />
+    <None Include="res\shaders\OpenGL\GL_perlinworley.comp" />
+    <None Include="res\shaders\OpenGL\GL_post_processing.frag" />
+    <None Include="res\shaders\OpenGL\GL_clouds_post.frag" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\shaders\OpenGL\GL_grid.frag" />

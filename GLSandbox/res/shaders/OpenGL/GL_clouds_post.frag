@@ -55,22 +55,16 @@ vec4 gaussianBlur(sampler2D tex, vec2 uv){
     return col;
 }
 
-void main()
-{
-
+void main() {
 	FragColor = gaussianBlur(clouds, TexCoords);
 	
-
-	/////////////////////////////////////////////// RADIAL BLUR - CREPUSCOLAR RAYS
 	bvec2 lowerLimit = greaterThan(lightPos.xy, vec2(0.0));
 	bvec2 upperLimit = lessThan(lightPos.xy, vec2(1.));
-	if(  lightDotCameraFront > 0.0 && enableGodRays)
-	{
+	if (lightDotCameraFront > 0.0 && enableGodRays) {
     // Screen coordinates.
     vec2 uv = gl_FragCoord.xy / resolution;
 
     // Radial blur factors.
-    //
     float decay = 0.98; 
     float density = 0.9; 
     float weight = 0.07; 
@@ -86,21 +80,15 @@ void main()
 	vec2 dTuv = tc - lightPos.xy;
 	dTuv *= density/float(SAMPLES);
     
-    //vec3 colRays = texture(emissions, uv.xy).rgb*0.4;
     vec3 colRays = gaussianBlur(emissions, uv).rgb*0.4;
-    for(int i=0; i < SAMPLES; i++){
+
+    for(int i=0; i < SAMPLES; i++) {
         uv -= dTuv;
-        //colRays += texture(emissions, uv).rgb *illuminationDecay* weight;
         colRays += texture(emissions, uv).rgb *illuminationDecay* weight;
         illuminationDecay *= decay;
     }
     
-    //FragColor -= 0.2;
-	//FragColor.rgb += (smoothstep(0., 1., colRays)*exposure - 0.2);
 	vec3 colorWithRays = FragColor.rgb +  (smoothstep(0., 1., colRays)*exposure - 0.2);
 	FragColor.rgb = mix(FragColor.rgb, colorWithRays*0.9, lightDotCameraFront*lightDotCameraFront);
-	//FragColor.rgb = (smoothstep(0., 1., colRays)*exposure - 0.2);
 	}
-
-
 }  

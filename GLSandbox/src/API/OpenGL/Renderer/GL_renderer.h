@@ -3,11 +3,12 @@
 #include "../Types/GL_framebuffer.h"
 #include "../Types/GL_shader.h"
 #include "../Types/GL_cubemapView.h"
+#include "../../../Types/TextureSet.h"
 #include "../Types/GL_detachedMesh.hpp"
-#include "../Types/GL_texture_3d.h"
 #include "../Camera/Camera.h"
 #include "../AssetManagement/AssetManager.h"
 #include "../GL_backend.h"
+#include "CreateInfo.h"
 
 struct OpenGLRasterizerState {
 	GLboolean depthTestEnabled = true;
@@ -32,12 +33,16 @@ namespace OpenGLRenderer {
 
 	void InitClouds();
 	void CloudsPass();
+	void PostProcessingPass();
 
 	// Utils
 	OpenGLCubemapView* GetCubemapView(const std::string& name);
 	OpenGLFrameBuffer* GetFrameBuffer(const std::string& name);
 	OpenGLShader* GetShader(const std::string& name);
-	OpenGLTexture3D* GetTexture3D(const std::string& name);
+	OpenGLTextureSet* GetTextureSet(const std::string& name);
+
+	void InitQuad();
+	void DrawQuad();
 
 	// Rasterizer states
 	void InitRasterizerState();
@@ -46,6 +51,7 @@ namespace OpenGLRenderer {
 	void SetRasterizerState(const std::string& name);
 
 	// Frame buffers
+	void ClearRenderTargets();
 	void BlitFrameBuffer(OpenGLFrameBuffer* srcFrameBuffer, OpenGLFrameBuffer* dstFrameBuffer, const char* srcName, const char* dstName, GLbitfield mask, GLenum filter);
 	void BlitToDefaultFrameBuffer(OpenGLFrameBuffer* srcFrameBuffer, const char* name, GLbitfield mask, GLenum filter);
 

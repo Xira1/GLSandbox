@@ -71,8 +71,8 @@ namespace OpenGLBackend {
 		ToggleFullscreen();
 		ToggleFullscreen();
 
-		glClearColor(0, 0, 0, 0);
-		glClear(GL_COLOR_BUFFER_BIT);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
 		SwapBuffersPollEvents();
 
 		for (int i = 0; i < 32; ++i) {

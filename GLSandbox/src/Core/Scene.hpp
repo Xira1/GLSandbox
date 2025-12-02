@@ -5,6 +5,8 @@
 #include "../Input/Input.h"
 #include "Common.h"
 
+// Redesign scene to struct for new scenes, now i have only 1 scene
+
 namespace Scene {
 	inline std::vector<GameObject> g_gameObjects;
 	inline std::vector<RenderItem> g_renderItems;
@@ -73,29 +75,7 @@ namespace Scene {
 	}
 
 	inline void SetMaterials() {
-		/*GameObject* Sofa = GetGameObjectByName("Sofa_1");
-		if (Sofa) {
-			Sofa->SetMeshMaterialByMeshName("set3_6", "Sofa_1");
-		}
-
-		GameObject* CatStatue = GetGameObjectByName("CatStatue");
-		if (CatStatue) {
-			CatStatue->SetMeshMaterialByMeshName("CatMesh", "CatStatue");
-		}
-
-		GameObject* Vergil = GetGameObjectByName("CatStatue");
-		if (Vergil) {
-			Vergil->SetMeshMaterialByMeshName("BodyLegs", "Sofa_1");
-			Vergil->SetMeshMaterialByMeshName("Hands", "Sofa_1");
-			Vergil->SetMeshMaterialByMeshName("Head", "Sofa_1");
-			Vergil->SetMeshMaterialByMeshName("Horns", "Sofa_1");
-			Vergil->SetMeshMaterialByMeshName("LeftNails", "Sofa_1");
-			Vergil->SetMeshMaterialByMeshName("RightNails", "Sofa_1");
-			Vergil->SetMeshMaterialByMeshName("ScabbardLeft", "Sofa_1");
-			Vergil->SetMeshMaterialByMeshName("ScabbardRight", "Sofa_1");
-			Vergil->SetMeshMaterialByMeshName("Tail", "Sofa_1");
-			Vergil->SetMeshMaterialByMeshName("Wings", "Sofa_1");
-		}*/
+		
 	}
 
 	inline void CreateGameObjects() {

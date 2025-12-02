@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include "Types.h"
 #include "Enums.h"
+#include "Singleton.h"
 
 #define NEAR_PLANE 0.01f
 #define FAR_PLANE 1000.0f
@@ -26,19 +27,15 @@ private:
 	}
 };
 
-struct Camera {
-    Camera() = default;
-    static Camera& GetInstance() {
-        static Camera inst;
-        return inst;
-    }
+struct Camera : public CoreUtils::Singleton<Camera> {
+public:
 	void Init(GLFWwindow* window);
     void Update(float deltaTime);
-    void SetPosition(glm::vec3 position);
 	void SwitchCameraMode();
-    const glm::mat4& GetViewMatrixPlayer() const;
+    glm::mat4 GetViewMatrixPlayer();
+    glm::vec3 GetCameraPosition();
     const glm::mat4& GetViewMatrix() const;
-    const glm::mat4& GetProjectionMatrix() const;
+    const glm::mat4& GetProjectionMatrix();
     const glm::mat4& GetInverseViewMatrix() const;
     const glm::vec3& GetEyePosition() const;
     const glm::vec3& GetPosition() const;
@@ -48,6 +45,7 @@ struct Camera {
     const glm::vec3& GetUp() const;
     const glm::vec3& GetRight() const;
     const glm::vec3 GetForwardXZ() const;
+    const float GetOrbitCameraDistance() const { return g_orbitCamera.distance; }
     const float GetPitch() const { return m_rotation.x; }
     const float GetYaw() const { return m_rotation.y; }
     Transform& GetTransform() { return g_transform; }
@@ -69,6 +67,7 @@ private:
     glm::vec3 m_rotation = glm::vec3(0.0f);
     glm::quat m_rotationQ = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
     glm::mat4 m_viewMatrix = glm::mat4(1.0f);
+    glm::mat4 m_projMatrix = glm::mat4(1.0f);
     glm::mat4 m_inverseViewMatrix = glm::mat4(1.0f);
     glm::vec3 m_forward = glm::vec3(0.0f, 0.0f, 1.0f);
     glm::vec3 m_up = glm::vec3(0.0f, 1.0f, 0.0f);

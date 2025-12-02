@@ -42,6 +42,7 @@ public:
         GLenum magFilter = GL_LINEAR, GLenum wrapFilter = GL_CLAMP_TO_EDGE, bool allocateMips = false);
     void CreateDepthAttachment(GLenum internalFormat, GLenum minFilter = GL_LINEAR, 
         GLenum magFilter = GL_LINEAR, GLint wrap = GL_CLAMP_TO_EDGE, glm::vec4 borderColor = glm::vec4(1.0f));
+    void CreateColorArray(int count, GLenum internalFormat);
     void BindDepthAttachmentFrom(const OpenGLFrameBuffer& srcFrameBuffer);
     void Bind();
     void SetViewport();
@@ -51,12 +52,15 @@ public:
 
     void Resize(int width, int height);
 
+    void ClearDepthAttachment();
     GLuint GetHandle() const;
     GLuint GetWidth() const;
     GLuint GetHeight() const;
     GLuint GetColorAttachmentHandleByName(const char* name) const;
     GLuint GetDepthAttachmentHandle() const;
     GLenum GetColorAttachmentSlotByName(const char* name) const;
+    GLuint GetColorAttachmentHandleByIndex(int idx) const;
+    int GetColorAttachmentCount() const;
     void BlitToDefaultFrameBuffer(const char* srcName, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
 };
 

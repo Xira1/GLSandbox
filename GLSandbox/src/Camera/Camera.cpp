@@ -152,7 +152,7 @@ void Camera::Update(float deltaTime) {
 	}
 }
 
-const glm::mat4& Camera::GetViewMatrixPlayer() const {
+glm::mat4 Camera::GetViewMatrixPlayer() {
 	if (g_cameraMode == CameraMode::FIRST_PERSON) {
 		glm::vec3 dir;
 		dir.x = cos(g_orbitCamera.pitch) * cos(g_orbitCamera.yaw);
@@ -169,18 +169,28 @@ const glm::mat4& Camera::GetViewMatrixPlayer() const {
 	}
 }
 
+glm::vec3 Camera::GetCameraPosition() {
+	return g_transform.position;
+}
+
 const glm::vec3& Camera::GetEyePosition() const {
 	return m_position + glm::vec3(0.0f, 1.0f, 0.0f);
 }
 
-const glm::mat4& Camera::GetProjectionMatrix() const {
+const glm::mat4& Camera::GetProjectionMatrix() {
+	if (!g_window) {
+		static glm::mat4 dummy(1.0f);
+		return dummy;
+	}
+
 	int width, height;
 	glfwGetWindowSize(g_window, &width, &height);
-	return glm::perspective(1.0f, float(width) / float(height), NEAR_PLANE, FAR_PLANE);
+	m_projMatrix = glm::perspective(glm::radians(60.0f), float(width) / float(height), NEAR_PLANE, FAR_PLANE);
+	return m_projMatrix;
 }
 
 const glm::mat4& Camera::GetInverseViewMatrix() const {
-	return m_inverseViewMatrix;
+	return glm::inverse(m_inverseViewMatrix);
 }
 
 const glm::mat4& Camera::GetViewMatrix() const {

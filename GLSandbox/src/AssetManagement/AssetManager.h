@@ -35,6 +35,7 @@ namespace AssetManager {
 	int CreateMesh(const std::string& name, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);
 	OpenGLDetachedMesh* GetMeshByIndex(int index);
 	OpenGLDetachedMesh* GetCubeMesh();
+	OpenGLDetachedMesh* GetMeshByModelNameMeshName(const std::string& modelName, const std::string& meshName);
 
 	// Textures
 	int GetTextureIndexByName(const std::string& name, bool warning = true);

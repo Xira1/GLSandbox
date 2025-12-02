@@ -73,6 +73,14 @@ void OpenGLFrameBuffer::CreateDepthAttachment(GLenum internalFormat, GLenum minF
     glObjectLabel(GL_TEXTURE, m_depthAttachment.handle, static_cast<GLsizei>(debugLabel.length()), debugLabel.c_str());
 }
 
+void OpenGLFrameBuffer::CreateColorArray(int count, GLenum internalFormat) {
+    for (int i = 0; i < count; ++i) {
+        char name[32];
+        sprintf_s(name, "tex_%d", i);
+        CreateAttachment(name, internalFormat);
+    }
+}
+
 void OpenGLFrameBuffer::BindDepthAttachmentFrom(const OpenGLFrameBuffer& srcFrameBuffer) {
     GLenum attach = (srcFrameBuffer.m_depthAttachment.internalFormat == GL_DEPTH24_STENCIL8 ||
         srcFrameBuffer.m_depthAttachment.internalFormat == GL_DEPTH32F_STENCIL8)
@@ -154,6 +162,10 @@ void OpenGLFrameBuffer::Resize(int width, int height) {
     std::cout << "Resized '" << m_name << "' framebuffer to " << m_width << ", " << m_height << "\n";
 }
 
+void OpenGLFrameBuffer::ClearDepthAttachment() {
+    glClear(GL_DEPTH_BUFFER_BIT);
+}
+
 GLuint OpenGLFrameBuffer::GetHandle() const {
     return m_handle;
 }
@@ -164,6 +176,18 @@ GLuint OpenGLFrameBuffer::GetWidth() const {
 
 GLuint OpenGLFrameBuffer::GetHeight() const {
 	return m_height;
+}
+
+GLuint OpenGLFrameBuffer::GetColorAttachmentHandleByIndex(int idx) const {
+    if (idx < 0 || idx >= (int)m_colorAttachments.size()) {
+        std::cout << "OpenGLFrameBuffer::GetColorAttachmentHandleByIndex() failed, because color attachment out of range\n";
+        return 0;
+    }
+    return m_colorAttachments[idx].handle;
+}
+
+int OpenGLFrameBuffer::GetColorAttachmentCount() const {
+    return (int)m_colorAttachments.size();
 }
 
 GLuint OpenGLFrameBuffer::GetColorAttachmentHandleByName(const char* name) const {

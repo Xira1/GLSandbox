@@ -7,8 +7,8 @@ namespace OpenGLRenderer {
 		OpenGLCubemapView* skyboxCubemapView = GetCubemapView("SkyboxNightSky");
 		OpenGLDetachedMesh* mesh = AssetManager::GetCubeMesh();
 		
-		gBuffer->Bind();
-		gBuffer->DrawBuffers({ "FinalLighting", "WorldPosition" });
+		/*gBuffer->Bind();
+		gBuffer->DrawBuffers({ "FinalLighting", "WorldPosition" });*/
 		shader->Use();
 
 		SetRasterizerState("Skybox");
@@ -19,13 +19,13 @@ namespace OpenGLRenderer {
 		glDepthMask(GL_FALSE);
 
 		Transform skyboxTransform;
-		skyboxTransform.position = Camera::GetInstance().GetPosition();
+		skyboxTransform.position = Camera::GetInstance().GetCameraPosition();
 		skyboxTransform.scale = glm::vec3(200.0f);
 
 		shader->SetInt("skybox", 0);
 		shader->SetMat4("u_modelMatrix", skyboxTransform.to_mat4());
 
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, mesh->GetIndexCount(), GL_UNSIGNED_INT, 0);
 
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glDepthMask(GL_TRUE);

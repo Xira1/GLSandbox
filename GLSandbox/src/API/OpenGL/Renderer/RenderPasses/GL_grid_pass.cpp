@@ -5,9 +5,9 @@ namespace OpenGLRenderer {
 		OpenGLShader* shader = GetShader("Grid");
 		OpenGLFrameBuffer* gBuffer = GetFrameBuffer("GBuffer");
 
-		gBuffer->Bind();
+		/*gBuffer->Bind();
 		gBuffer->SetViewport();
-		gBuffer->DrawBuffers({ "BaseColor" });
+		gBuffer->DrawBuffers({ "BaseColor" });*/
 		shader->Use();
 
 		SetRasterizerState("Grid");
@@ -19,7 +19,7 @@ namespace OpenGLRenderer {
 		glm::mat4 invViewProj = glm::inverse(Camera::GetInstance().GetProjectionMatrix() * Camera::GetInstance().GetViewMatrixPlayer());
 
 		shader->SetMat4("uInverseViewProjection", invViewProj);
-		shader->SetVec3("uCameraPosition", Camera::GetInstance().GetPosition());
+		shader->SetVec3("uCameraPosition", Camera::GetInstance().GetCameraPosition());
 		shader->SetVec2("uResolution", glm::vec2(OpenGLBackend::GetWindowWidth(), OpenGLBackend::GetWindowHeight()));
 		shader->SetVec3("uGridColor", glm::vec3(0.5f));
 		shader->SetFloat("uGridSize", 0.2f);

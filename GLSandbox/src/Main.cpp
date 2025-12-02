@@ -51,8 +51,7 @@ void Clear() {
     OpenGLBackend::Cleanup();
 }
 
-int main()
-{
+int main() {
     Init("Sandbox");
     glfwSwapInterval(1);
 

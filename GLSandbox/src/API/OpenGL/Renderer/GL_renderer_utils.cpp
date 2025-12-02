@@ -1,6 +1,35 @@
 #include "GL_renderer.h"
 
 namespace OpenGLRenderer {
+    unsigned int quadVAO = 0;
+    unsigned int quadVBO = 0;
+
+    void InitQuad() {
+        float vertices[] = {
+            -1.0f, -1.0f, 0.0, 0.0,
+            1.0f, -1.0f, 1.0, 0.0,
+            -1.0f,  1.0f, 0.0, 1.0,
+            1.0f,  1.0f, 1.0, 1.0,
+            -1.0f,  1.0f, 0.0, 1.0,
+            1.0f, -1.0f, 1.0, 0.0
+        };
+
+        glGenVertexArrays(1, &quadVAO);
+        glGenBuffers(1, &quadVBO);
+        glBindVertexArray(quadVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+    }
+
+    void DrawQuad() {
+        glBindVertexArray(quadVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+    }
+
 	void BlitFrameBuffer(OpenGLFrameBuffer* srcFrameBuffer, OpenGLFrameBuffer* dstFrameBuffer, const char* srcName, const char* dstName, GLbitfield mask, GLenum filter) {
 		GLint srcAttachmentSlot = srcFrameBuffer->GetColorAttachmentSlotByName(srcName);
 		GLint dstAttachmentSlot = dstFrameBuffer->GetColorAttachmentSlotByName(dstName);

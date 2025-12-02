@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -77,7 +77,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>vendor\GLFW\include;vendor\compressonator\include\;vendor\gli\include;src\Common;vendor\glad\include;vendor\glm;vendor\stb_image;vendor\assimp\include;vendor;vendor\tinyexr;vendor\fmod\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>vendor\GLFW\include;vendor\compressonator\include\;vendor\gli\include;src\Common;vendor\glad\include;vendor\glm;vendor\stb_image;vendor\assimp\include;src\Core;vendor\tinyexr;vendor\fmod\include;vendor\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -97,11 +97,10 @@
     <ClCompile Include="src\API\OpenGL\Renderer\RenderPasses\GL_skybox_pass.cpp" />
     <ClCompile Include="src\API\OpenGL\Types\GL_cubemapView.cpp" />
     <ClCompile Include="src\API\OpenGL\Types\GL_framebuffer.cpp" />
-    <ClCompile Include="src\API\OpenGL\Types\GL_screenQuad.cpp" />
-    <ClCompile Include="src\API\OpenGL\Types\GL_texture_3d.cpp" />
     <ClCompile Include="src\AssetManagement\AssetManager.cpp" />
     <ClCompile Include="src\AssetManagement\BakeQueue\BakeQueue.cpp" />
     <ClCompile Include="src\Camera\Viewer.cpp" />
+    <ClCompile Include="src\Types\TextureSet.cpp" />
     <ClCompile Include="src\Types\TextureTools\TextureTools.cpp" />
     <ClCompile Include="src\Importer\AssimpImporter.cpp" />
     <ClCompile Include="src\Player\Player.cpp" />
@@ -117,13 +116,18 @@
     <ClCompile Include="vendor\glad\src\glad.c" />
     <ClCompile Include="vendor\stb_image\stb_image.cpp" />
     <ClCompile Include="vendor\tinyexr\tinyexr.cpp" />
+    <None Include="res\shaders\OpenGL\GL_clouds_post.frag" />
+    <None Include="res\shaders\OpenGL\GL_perlinworley.comp" />
+    <None Include="res\shaders\OpenGL\GL_post_processing.frag" />
+    <None Include="res\shaders\OpenGL\GL_screen.vert" />
+    <None Include="res\shaders\OpenGL\GL_volumetric_clouds.comp" />
+    <None Include="res\shaders\OpenGL\GL_weather.comp" />
+    <None Include="res\shaders\OpenGL\GL_worley.comp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\API\OpenGL\Types\GL_cubemapView.h" />
     <ClInclude Include="src\API\OpenGL\Types\GL_framebuffer.h" />
     <ClInclude Include="src\API\OpenGL\Types\GL_pbo.hpp" />
-    <ClInclude Include="src\API\OpenGL\Types\GL_screenQuad.h" />
-    <ClInclude Include="src\API\OpenGL\Types\GL_texture_3d.h" />
     <ClInclude Include="src\API\OpenGL\Types\GL_texture_3D.hpp" />
     <ClInclude Include="src\API\OpenGL\Utils\GL_utils.hpp" />
     <ClInclude Include="src\AssetManagement\AssetManager.h" />
@@ -131,7 +135,8 @@
     <ClInclude Include="src\Camera\Viewer.h" />
     <ClInclude Include="src\Common\CreateInfo.h" />
     <ClInclude Include="src\Common\Enums.h" />
-    <ClInclude Include="src\Core\SceneElements.h" />
+    <ClInclude Include="src\Core\Singleton.h" />
+    <ClInclude Include="src\Types\TextureSet.h" />
     <ClInclude Include="src\Types\TextureTools\DDS.h" />
     <ClInclude Include="src\Types\TextureTools\TextureTools.h" />
     <ClInclude Include="src\Importer\AssimpImporter.h" />
@@ -145,7 +150,6 @@
     <ClInclude Include="src\Camera\Camera.h" />
     <ClInclude Include="src\API\OpenGL\Types\GL_detachedMesh.hpp" />
     <ClInclude Include="src\Common\Common.h" />
-    <ClInclude Include="src\Common\Primitives.h" />
     <ClInclude Include="src\Common\Types.h" />
     <ClInclude Include="src\Core\Scene.hpp" />
     <ClInclude Include="src\Types\Model.hpp" />

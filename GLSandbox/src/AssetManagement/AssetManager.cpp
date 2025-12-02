@@ -233,10 +233,10 @@ namespace AssetManager {
 		/* Quad */ {
 			std::vector<Vertex> vertices = {
 				// Position               Normal               UV            Tangent
-				{{-0.5f, -0.5f, 0.0f},    {0.0f, 0.0f, 1.0f},  {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}}, // Bottom-left
-				{{ 0.5f, -0.5f, 0.0f},    {0.0f, 0.0f, 1.0f},  {1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}}, // Bottom-right
-				{{ 0.5f,  0.5f, 0.0f},    {0.0f, 0.0f, 1.0f},  {1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}}, // Top-right
-				{{-0.5f,  0.5f, 0.0f},    {0.0f, 0.0f, 1.0f},  {0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}}  // Top-left
+				{{-1.0f, -1.0f, 0.0f},    {0.0f, 0.0f, 1.0f},  {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}}, // Bottom-left
+				{{ 1.0f, -1.0f, 0.0f},    {0.0f, 0.0f, 1.0f},  {1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}}, // Bottom-right
+				{{ 1.0f,  1.0f, 0.0f},    {0.0f, 0.0f, 1.0f},  {1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}}, // Top-right
+				{{-1.0f,  1.0f, 0.0f},    {0.0f, 0.0f, 1.0f},  {0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}}  // Top-left
 			};
 
 			std::vector<uint32_t> indices = { 0, 1, 2, 2, 3, 0 };
@@ -375,6 +375,24 @@ namespace AssetManager {
 		}
 
 		return mesh;
+	}
+
+	OpenGLDetachedMesh* GetMeshByModelNameMeshName(const std::string& modelName, const std::string& meshName) {
+		Model* model = GetModelByName(modelName);
+		if (!model) {
+			std::cout << "AssetManager::GetMeshByModelNameMeshName() failed, because " << modelName << " does not exist\n";
+			return nullptr;
+		}
+		else {
+			for (uint32_t meshIdx : model->GetMeshIndices()) {
+				OpenGLDetachedMesh* mesh = GetMeshByIndex(meshIdx);
+				if (mesh && mesh->GetName() == meshName) {
+					return mesh;
+				}
+			}
+		}
+
+		return nullptr;
 	}
 
 	/*
