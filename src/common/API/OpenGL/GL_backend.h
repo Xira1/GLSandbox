@@ -1,0 +1,39 @@
+#pragma once
+
+#include "glad/glad.h"
+#include "GLFW/glfw3.h"
+#include "Common/Common.h"
+
+#include "Types/GL_texture.h"
+#include "Renderer/Types/Texture.h"
+
+enum class WindowedMode { WINDOWED, FULLSCREEN };
+
+namespace OpenGLBackend {
+	void Init(std::string title);
+	void ToggleFullscreen();
+	void ForceCloseWindow();
+	void SetWindowedMode(const WindowedMode& windowedMode);
+	bool WindowIsOpen();
+	double GetCursorX();
+	double GetCursorY();
+	int GetWindowWidth();
+	int GetWindowHeight();
+	void SwapBuffersPollEvents();
+	GLFWwindow* GetWindowPtr();
+
+	// Textures
+	void AllocateTextureMemory(Texture& texture);
+	void ImmediateBake(QueuedTextureBake& queuedTextureBake);
+	void UpdateTextureBaking();
+	void AsyncBakeQueuedTextureBake(QueuedTextureBake& queuedTextureBake);
+
+	// Buffers
+	void UploadVertexBuffers(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);
+
+	GLuint GetVertexDataVAO();
+	GLuint GetVertexDataVBO();
+	GLuint GetVertexDataEBO();
+
+	void Cleanup();
+}

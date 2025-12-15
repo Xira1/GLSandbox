@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Ingore builds
+/build/
+
 # User-specific files
 *.rsuser
 *.suo
@@ -358,7 +361,3 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
-
-# Fody - auto-generated XML schema
-FodyWeavers.xsdGLSandbox/res/models/Tree01.fbx
-GLSandbox/res/models/Tree01.fbx

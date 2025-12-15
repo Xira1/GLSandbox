@@ -1,0 +1,524 @@
+﻿#include "AssetManager.h"
+
+#include "BakeQueue/BakeQueue.h"
+#include "Util/Util.h"
+#include "API/OpenGL/GL_backend.h"
+#include "API/OpenGL/Renderer/GL_renderer.h"
+#include "Renderer/TextureTools/TextureTools.h"
+#include "World/Room/Room.hpp"
+
+namespace AssetManager {
+	// Asset parts
+	std::vector<Model> g_models;
+	std::vector<OpenGLDetachedMesh> g_meshes;
+	std::vector<Texture> g_textures;
+	std::vector<Material> g_materials;
+	std::unordered_map<std::string, int> g_modelIndexMap;
+	std::unordered_map<std::string, int> g_textureIndexMap;
+	std::unordered_map<std::string, int> g_materialIndexMap;
+
+	// Buffers
+	std::vector<Vertex> g_vertices;
+	std::vector<uint32_t> g_indices;
+
+	// Models
+	void LoadModelsAsync();
+
+	// Textures
+	void LoadTextureMinimum();
+	void LoadTexturesAsync();
+	void LoadTexture(Texture* texture);
+	void LoadPendingTexturesAsync();
+	void CompressMissingDDSTexutres();
+
+	// Materials
+	void BuildMaterials();
+	bool IsAlbedo(const FileInfo& fileInfo);
+	std::string GetMaterialNameFromFileInfo(const FileInfo& fileInfo);
+
+	void Init() {
+		CompressMissingDDSTexutres();
+		HardcodedRoom::LoadHardcodedModelRoom();
+
+		LoadTextureMinimum();
+		LoadModelsAsync();
+		LoadTexturesAsync();
+		BuildPrimitives();
+		BuildMaterials();
+
+		OpenGLBackend::UploadVertexBuffers(g_vertices, g_indices);
+
+		OpenGLRenderer::InitMain();
+	}
+
+	void Update() {
+		for (Texture& texture : g_textures) {
+			texture.CheckForBakeCompletion();
+		}
+	}
+
+	/*
+	███    ███  ██████  ██████  ███████ ██      ███████
+	████  ████ ██    ██ ██   ██ ██      ██      ██
+	██ ████ ██ ██    ██ ██   ██ █████   ██      ███████
+	██  ██  ██ ██    ██ ██   ██ ██      ██           ██
+	██      ██  ██████  ██████  ███████ ███████ ███████ */
+
+	void LoadModelsAsync() {
+		for (FileInfo& fileInfo : Util::IterateDirectory("models", { "obj", "fbx" })) {
+			Model& model = g_models.emplace_back();
+			ModelData modelData = AssimpImporter::ImportModel(fileInfo.path);
+
+			LoadModelFromData(model, modelData);
+		}
+
+		for (int i = 0; i < g_models.size(); i++) {
+			g_modelIndexMap[g_models[i].GetName()] = i;
+		}
+	}
+
+	void LoadModelFromData(Model& model, ModelData& modelData) {
+		model.SetName(modelData.name);
+		model.SetAABB(modelData.aabbMin, modelData.aabbMax);
+
+		for (MeshData& meshData : modelData.meshes) {
+			int meshIndex = CreateMesh(meshData.name, meshData.vertices, meshData.indices, meshData.aabbMin, meshData.aabbMax);
+			model.AddMeshIndex(meshIndex);
+		}
+
+		model.SetLoadStatus(true);
+	}
+
+	Model* GetModelByName(const std::string& name) {
+		auto it = g_modelIndexMap.find(name);
+		if (it != g_modelIndexMap.end()) {
+			return &g_models[it->second];
+		}
+		std::cout << "AssetManager::GetModelByName() failed because '" << name << "' was not found\n";
+		return nullptr;
+	}
+
+	Model* GetModelByIndex(int index) {
+		if (index >= 0 && index < g_models.size()) {
+			return &g_models[index];
+		}
+		std::cout << "AssetManager::GetModelByIndex() failed because index = " << index << "\n";
+		return nullptr;
+	}
+
+	Model* CreateModel(const std::string& name) {
+		g_models.emplace_back(Model());
+		Model* model = &g_models.back();
+		model->SetName(name);
+		g_modelIndexMap[name] = static_cast<int>(g_models.size() - 1);
+		return model;
+	}
+
+	int GetModelIndexByName(const std::string& name) {
+		auto it = g_modelIndexMap.find(name);
+		if (it != g_modelIndexMap.end()) {
+			return it->second;
+		}
+
+		std::cout << "AssetManager::GetModelIndexByName() failed because '" << name << "' was not found\n";
+		return -1;
+	}
+
+	void BuildPrimitives() {
+
+		Model* model = CreateModel("Primitives");
+
+		/* Quad */ {
+			std::vector<Vertex> vertices = {
+				// Position               Normal               UV            Tangent
+				{{-1.0f, -1.0f, 0.0f},    {0.0f, 0.0f, 1.0f},  {0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}}, // Bottom-left
+				{{ 1.0f, -1.0f, 0.0f},    {0.0f, 0.0f, 1.0f},  {1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}}, // Bottom-right
+				{{ 1.0f,  1.0f, 0.0f},    {0.0f, 0.0f, 1.0f},  {1.0f, 1.0f}, {1.0f, 0.0f, 0.0f}}, // Top-right
+				{{-1.0f,  1.0f, 0.0f},    {0.0f, 0.0f, 1.0f},  {0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}}  // Top-left
+			};
+
+			std::vector<uint32_t> indices = { 0, 1, 2, 2, 3, 0 };
+
+			int meshIndex = CreateMesh("Quad", vertices, indices);
+			model->AddMeshIndex(meshIndex);
+		}
+
+		/* Cube */ {
+			std::vector<Vertex> cubeVertices = {
+				// FRONT FACE
+				{{-0.5f, -0.5f,  0.5f}, { 0, 0, 1}, {0, 0}, {1, 0, 0}},
+				{{ 0.5f, -0.5f,  0.5f}, { 0, 0, 1}, {1, 0}, {1, 0, 0}},
+				{{ 0.5f,  0.5f,  0.5f}, { 0, 0, 1}, {1, 1}, {1, 0, 0}},
+				{{-0.5f,  0.5f,  0.5f}, { 0, 0, 1}, {0, 1}, {1, 0, 0}},
+
+				// BACK FACE
+				{{ 0.5f, -0.5f, -0.5f}, { 0, 0, -1}, {0, 0}, {-1, 0, 0}},
+				{{-0.5f, -0.5f, -0.5f}, { 0, 0, -1}, {1, 0}, {-1, 0, 0}},
+				{{-0.5f,  0.5f, -0.5f}, { 0, 0, -1}, {1, 1}, {-1, 0, 0}},
+				{{ 0.5f,  0.5f, -0.5f}, { 0, 0, -1}, {0, 1}, {-1, 0, 0}},
+
+				// LEFT FACE
+				{{-0.5f, -0.5f, -0.5f}, {-1, 0, 0}, {0, 0}, {0, 0, 1}},
+				{{-0.5f, -0.5f,  0.5f}, {-1, 0, 0}, {1, 0}, {0, 0, 1}},
+				{{-0.5f,  0.5f,  0.5f}, {-1, 0, 0}, {1, 1}, {0, 0, 1}},
+				{{-0.5f,  0.5f, -0.5f}, {-1, 0, 0}, {0, 1}, {0, 0, 1}},
+
+				// RIGHT FACE
+				{{ 0.5f, -0.5f,  0.5f}, { 1, 0, 0}, {0, 0}, {0, 0, -1}},
+				{{ 0.5f, -0.5f, -0.5f}, { 1, 0, 0}, {1, 0}, {0, 0, -1}},
+				{{ 0.5f,  0.5f, -0.5f}, { 1, 0, 0}, {1, 1}, {0, 0, -1}},
+				{{ 0.5f,  0.5f,  0.5f}, { 1, 0, 0}, {0, 1}, {0, 0, -1}},
+
+				// TOP FACE
+				{{-0.5f,  0.5f,  0.5f}, { 0, 1, 0}, {0, 0}, {1, 0, 0}},
+				{{ 0.5f,  0.5f,  0.5f}, { 0, 1, 0}, {1, 0}, {1, 0, 0}},
+				{{ 0.5f,  0.5f, -0.5f}, { 0, 1, 0}, {1, 1}, {1, 0, 0}},
+				{{-0.5f,  0.5f, -0.5f}, { 0, 1, 0}, {0, 1}, {1, 0, 0}},
+
+				// BOTTOM FACE
+				{{-0.5f, -0.5f, -0.5f}, { 0,-1, 0}, {0, 0}, {1, 0, 0}},
+				{{ 0.5f, -0.5f, -0.5f}, { 0,-1, 0}, {1, 0}, {1, 0, 0}},
+				{{ 0.5f, -0.5f,  0.5f}, { 0,-1, 0}, {1, 1}, {1, 0, 0}},
+				{{-0.5f, -0.5f,  0.5f}, { 0,-1, 0}, {0, 1}, {1, 0, 0}}
+			};
+
+			std::vector<uint32_t> cubeIndices = {
+				0, 1, 2,  2, 3, 0,      // Front face
+				4, 5, 6,  6, 7, 4,      // Back face
+				8, 9, 10, 10, 11, 8,    // Left face
+				12, 13, 14, 14, 15, 12, // Right face
+				16, 17, 18, 18, 19, 16, // Top face
+				20, 21, 22, 22, 23, 20  // Bottom face
+			};
+
+			int meshIndexCube = CreateMesh("Cube", cubeVertices, cubeIndices);
+			model->AddMeshIndex(meshIndexCube);
+		}
+		model->SetLoadStatus(true);
+	}
+
+	/*
+	███    ███ ███████ ███████ ██   ██ ███████ ███████
+	████  ████ ██      ██      ██   ██ ██      ██
+	██ ████ ██ █████   ███████ ███████ █████   ███████
+	██  ██  ██ ██           ██ ██   ██ ██           ██
+	██      ██ ███████ ███████ ██   ██ ███████ ███████*/
+
+	int CreateMesh(const std::string& name, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices, glm::vec3 aabbMin, glm::vec3 aabbMax) {
+		OpenGLDetachedMesh& mesh = g_meshes.emplace_back();
+		mesh.SetName(name);
+		mesh.UpdateVertexBuffer(vertices, indices);
+		mesh.aabbMin = aabbMin;
+		mesh.aabbMax = aabbMax;
+		return g_meshes.size() - 1;
+	}
+
+	int CreateMesh(const std::string& name, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices) {
+		glm::vec3 aabbMin = glm::vec3(std::numeric_limits<float>::min());
+		glm::vec3 aabbMax = glm::vec3(-std::numeric_limits<float>::max());;
+		for (int i = 0; i < indices.size(); i += 3) {
+			Vertex* vert0 = &vertices[indices[i]];
+			Vertex* vert1 = &vertices[indices[i + 1]];
+			Vertex* vert2 = &vertices[indices[i + 2]];
+			glm::vec3 deltaPos1 = vert1->position - vert0->position;
+			glm::vec3 deltaPos2 = vert2->position - vert0->position;
+			glm::vec2 deltaUV1 = vert1->uv - vert0->uv;
+			glm::vec2 deltaUV2 = vert2->uv - vert0->uv;
+			float det = (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+			float invDet = 1.0f / det;
+			glm::vec3 tangent = invDet * (-deltaUV2.y * deltaPos1 - deltaUV1.y * deltaPos2);
+			glm::vec3 bitangent = invDet * (-deltaUV2.x * deltaPos1 + deltaUV1.x * deltaPos2);
+			tangent = glm::normalize(tangent);
+			bitangent = glm::normalize(bitangent);
+			vert0->tangent = tangent;
+			vert1->tangent = tangent;
+			vert2->tangent = tangent;
+			aabbMin = Util::Vec3Min(vert0->position, aabbMin);
+			aabbMax = Util::Vec3Max(vert0->position, aabbMax);
+			aabbMin = Util::Vec3Min(vert1->position, aabbMin);
+			aabbMax = Util::Vec3Max(vert1->position, aabbMax);
+			aabbMin = Util::Vec3Min(vert2->position, aabbMin);
+			aabbMax = Util::Vec3Max(vert2->position, aabbMax);
+		}
+		OpenGLDetachedMesh& mesh = g_meshes.emplace_back();
+		mesh.SetName(name);
+		mesh.UpdateVertexBuffer(vertices, indices);
+		mesh.aabbMin = aabbMin;
+		mesh.aabbMax = aabbMax;
+		return g_meshes.size() - 1;
+	}
+
+	OpenGLDetachedMesh* GetMeshByIndex(int index) {
+		if (index >= 0 && index < g_meshes.size()) {
+			return &g_meshes[index];
+		}
+		else {
+			std::cout << "AssetManager::GetMeshByIndex() failed because " << index << " is out of range. Size is " << g_meshes.size();
+			return nullptr;
+		}
+	}
+
+	OpenGLDetachedMesh* GetCubeMesh() {
+		static OpenGLDetachedMesh* mesh = nullptr;
+
+		if (!mesh) {
+			int modelIdx = GetModelIndexByName("Cube");
+			if (modelIdx != -1) {
+				Model* model = GetModelByIndex(modelIdx);
+				if (model) {
+					int meshIdx = model->GetMeshIndices()[0];
+					mesh = GetMeshByIndex(meshIdx);
+				}
+			}
+		}
+
+		return mesh;
+	}
+
+	OpenGLDetachedMesh* GetMeshByModelNameMeshName(const std::string& modelName, const std::string& meshName) {
+		Model* model = GetModelByName(modelName);
+		if (!model) {
+			std::cout << "AssetManager::GetMeshByModelNameMeshName() failed, because " << modelName << " does not exist\n";
+			return nullptr;
+		}
+		else {
+			for (uint32_t meshIdx : model->GetMeshIndices()) {
+				OpenGLDetachedMesh* mesh = GetMeshByIndex(meshIdx);
+				if (mesh && mesh->GetName() == meshName) {
+					return mesh;
+				}
+			}
+		}
+
+		return nullptr;
+	}
+
+	/*
+	████████ ███████ ██   ██ ████████ ██    ██ ██████  ███████ ███████
+	   ██    ██       ██ ██     ██    ██    ██ ██   ██ ██      ██
+	   ██    █████     ███      ██    ██    ██ ██████  █████   ███████
+	   ██    ██       ██ ██     ██    ██    ██ ██   ██ ██           ██
+	   ██    ███████ ██   ██    ██     ██████  ██   ██ ███████ ███████*/
+
+	void LoadTextureMinimum() {
+		for (FileInfo& fileInfo : Util::IterateDirectory("textures/load_at_init/uncompressed", { "png", "jpg" })) {
+			Texture& texture = g_textures.emplace_back();
+			texture.SetFileInfo(fileInfo);
+			texture.SetImageDataType(ImageDataType::UNCOMPRESSED);
+			texture.SetTextureWrapMode(TextureWrapMode::CLAMP_TO_EDGE);
+			texture.SetMinFilter(TextureFilter::LINEAR_MIPMAP);
+			texture.SetMagFilter(TextureFilter::LINEAR);
+			texture.RequestMipMaps();
+		}
+
+		for (FileInfo& fileInfo : Util::IterateDirectory("textures/load_at_init/uncompressed_no_mipmaps", { "png", "jpg", })) {
+			Texture& texture = g_textures.emplace_back();
+			texture.SetFileInfo(fileInfo);
+			texture.SetImageDataType(ImageDataType::UNCOMPRESSED);
+			texture.SetTextureWrapMode(TextureWrapMode::CLAMP_TO_EDGE);
+			texture.SetMinFilter(TextureFilter::NEAREST);
+			texture.SetMagFilter(TextureFilter::NEAREST);
+		}
+
+		LoadPendingTexturesAsync();
+
+		BakeQueue::ImmediateBakeAllTexture();
+
+		for (int i = 0; i < g_textures.size(); i++) {
+			g_textureIndexMap[g_textures[i].GetFileInfo().name] = i;
+		}
+	}
+
+	void LoadTexturesAsync() {
+		for (FileInfo& fileInfo : Util::IterateDirectory("textures/compressed", { "dds" })) {
+			Texture& texture = g_textures.emplace_back();
+			texture.SetFileInfo(fileInfo);
+			texture.SetImageDataType(ImageDataType::COMPRESSED);
+			texture.SetTextureWrapMode(TextureWrapMode::REPEAT);
+			texture.SetMinFilter(TextureFilter::LINEAR_MIPMAP);
+			texture.SetMagFilter(TextureFilter::LINEAR);
+			texture.RequestMipMaps();
+		}
+
+		for (FileInfo& fileInfo : Util::IterateDirectory("textures/will_compress", { "png", "jpg" })) {
+			Texture& texture = g_textures.emplace_back();
+			texture.SetFileInfo(fileInfo);
+			texture.SetImageDataType(ImageDataType::UNCOMPRESSED);
+			texture.SetTextureWrapMode(TextureWrapMode::REPEAT);
+			texture.SetMinFilter(TextureFilter::LINEAR_MIPMAP);
+			texture.SetMagFilter(TextureFilter::LINEAR);
+			texture.RequestMipMaps();
+		}
+
+		for (FileInfo& fileInfo : Util::IterateDirectory("textures/uncompressed_no_mipmaps", { "png", "jpg" })) {
+			Texture& texture = g_textures.emplace_back();
+			texture.SetFileInfo(fileInfo);
+			texture.SetImageDataType(ImageDataType::UNCOMPRESSED);
+			texture.SetTextureWrapMode(TextureWrapMode::CLAMP_TO_EDGE);
+			texture.SetMinFilter(TextureFilter::NEAREST);
+			texture.SetMagFilter(TextureFilter::NEAREST);
+		}
+
+		LoadPendingTexturesAsync();
+
+		for (int i = 0; i < g_textures.size(); i++) {
+			g_textureIndexMap[g_textures[i].GetFileInfo().name] = i;
+		}
+	}
+
+	void LoadPendingTexturesAsync() {
+		std::vector<std::future<void>> fut;
+		for (Texture& texture : g_textures) {
+			if (texture.GetLoadingState() == LoadingState::AWAITING_LOADING_FROM_DISK) {
+				texture.SetLoadingState(LoadingState::LOADING_FROM_DISK);
+				fut.emplace_back(std::async(std::launch::async, LoadTexture, &texture));
+			}
+		}
+
+		for (auto& future : fut) {
+			future.get();
+		}
+
+		// Allocate memory
+		for (Texture& texture : g_textures) {
+			OpenGLBackend::AllocateTextureMemory(texture);
+		}
+	}
+
+	void CompressMissingDDSTexutres() {
+		for (FileInfo& fileInfo : Util::IterateDirectory("textures/will_compress", { "png", "jpg", "tga" })) {
+			std::string inputFile = fileInfo.path;
+			std::string outputFile = "textures/compressed/" + fileInfo.name + ".dds";
+			if (!Util::FileExist(outputFile)) {
+				TextureTools::CreateAndExportDDS(inputFile, outputFile, true);
+				std::cout << "Exported " << outputFile << "\n";
+			}
+		}
+	}
+
+	void LoadTexture(Texture* texture) {
+		if (texture) {
+			texture->Load();
+			BakeQueue::QueueTextureForBaking(texture);
+		}
+	}
+
+	int GetTextureIndexByName(const std::string& name, bool warning) {
+		for (int i = 0; i < g_textures.size(); i++) {
+			if (g_textures[i].GetFileInfo().name == name) {
+				return i;
+			}
+		}
+		if (!warning) {
+			std::cout << "AssetManager::GetTextureIndexByName() failed because '" << name << "' was not found" << "\n";
+		}
+		return -1;
+	}
+
+	int GetTextureCount() {
+		return g_textures.size();
+	}
+
+	Texture* GetTextureByIndex(int index) {
+		if (index != -1) {
+			return &g_textures[index];
+		}
+		std::cout << "AssetManager::GetTextureByIndex() failed because index = " << index << "\n";
+		return nullptr;
+	}
+
+	Texture* GetTextureByName(const std::string& name) {
+		for (Texture& texture : g_textures) {
+			if (texture.GetFileInfo().name == name) {
+				return &texture;
+			}
+		}
+
+		std::cout << "AssetManager::GetTextureByName() failed because " << name << " was not found" << "\n";
+		return nullptr;
+	}
+
+	/*
+	███    ███  █████  ████████ ███████ ██████  ██  █████  ██      ███████
+	████  ████ ██   ██    ██    ██      ██   ██ ██ ██   ██ ██      ██
+	██ ████ ██ ███████    ██    █████   ██████  ██ ███████ ██      ███████
+	██  ██  ██ ██   ██    ██    ██      ██   ██ ██ ██   ██ ██           ██
+	██      ██ ██   ██    ██    ███████ ██   ██ ██ ██   ██ ███████ ███████*/
+
+	bool IsAlbedo(const FileInfo& fileInfo) {
+		if (fileInfo.name.size() >= 4 && fileInfo.name.substr(fileInfo.name.size() - 4) == "_ALB") {
+			return true;
+		}
+		return false;
+	}
+
+	std::string GetMaterialNameFromFileInfo(const FileInfo& fileInfo) {
+		const std::string suff = "_ALB";
+		if (fileInfo.name.size() > suff.size() && fileInfo.name.substr(fileInfo.name.size() - suff.size()) == suff) {
+			return fileInfo.name.substr(0, fileInfo.name.size() - suff.size());
+		}
+
+		return "";
+	}
+
+	void BuildMaterials() {
+		g_materials.clear();
+		for (Texture& texture : g_textures) {
+			if (IsAlbedo(texture.GetFileInfo())) {
+				Material& mat = g_materials.emplace_back(Material());
+				mat.name = GetMaterialNameFromFileInfo(texture.GetFileInfo());
+				int baseColorInd = GetTextureIndexByName(mat.name + "_ALB", true);
+				int normalInd = GetTextureIndexByName(mat.name + "_NRM", true);
+				int rmaInd = GetTextureIndexByName(mat.name + "_RMA", true);
+				mat.m_baseColor = baseColorInd;
+				mat.m_normal = (normalInd != -1) ? normalInd : GetTextureIndexByName("DefaultNRM");
+				mat.m_rma = (rmaInd != -1) ? rmaInd : GetTextureIndexByName("DefaultRMA");
+			}
+		}
+
+		for (int i = 0; i < g_materials.size(); i++) {
+			g_materialIndexMap[g_materials[i].name] = i;
+		}
+	}
+
+	int GetMaterialIndex(const std::string& name) {
+		auto it = g_materialIndexMap.find(name);
+		if (it != g_materialIndexMap.end()) {
+			return it->second;
+		}
+		else {
+			std::cout << "AssetManager::GetMaterialIndex() failed because " << name << " was not found" << "\n";
+			return -1;
+		}
+	}
+
+	std::string& GetMaterialNameByIndex(int index) {
+		return g_materials[index].name;
+	}
+
+	Material* GetMaterialByIndex(int index) {
+		if (index >= 0 && index < g_materials.size()) {
+			Material* material = &g_materials[index];
+			Texture* baseColor = AssetManager::GetTextureByIndex(material->m_baseColor);
+			Texture* normal = AssetManager::GetTextureByIndex(material->m_normal);
+			Texture* rma = AssetManager::GetTextureByIndex(material->m_rma);
+
+			if (baseColor && baseColor->BakeComplete() &&
+				normal && normal->BakeComplete() &&
+				rma && rma->BakeComplete()) {
+				return &g_materials[index];
+			}
+			else {
+				GetDefaultMaterial();
+			}
+		}
+		else {
+			GetDefaultMaterial();
+		}
+	}
+
+	Material* GetDefaultMaterial() {
+		int index = GetMaterialIndex("Default");
+		return GetMaterialByIndex(index);
+	}
+}
