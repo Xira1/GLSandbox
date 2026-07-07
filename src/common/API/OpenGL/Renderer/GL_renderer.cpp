@@ -13,7 +13,7 @@ namespace OpenGLRenderer {
 	std::unordered_map<std::string, OpenGLRasterizerState> g_rasterizerStates;
 
 	void RenderScene(OpenGLShader& shader);
-	void RenderCubePlayer();
+	void RenderPlayer();
 	void RenderLightning();
 
 	void InitMain() {
@@ -93,7 +93,7 @@ namespace OpenGLRenderer {
 		SkyBoxPass();
 		GridPass();
 		RenderLightning();
-		RenderCubePlayer();
+		RenderPlayer();
 
 		OpenGLRenderer::BlitFrameBuffer(&gBuffer, &finalImageBuffer, "FinalLighting", "Color", GL_COLOR_BUFFER_BIT, GL_LINEAR);
 		OpenGLRenderer::BlitToDefaultFrameBuffer(&gBuffer, "BaseColor", GL_COLOR_BUFFER_BIT, GL_NEAREST);
@@ -152,9 +152,9 @@ namespace OpenGLRenderer {
 		RenderScene(*shader);
 	}
 
-	void RenderCubePlayer() {
+	void RenderPlayer() {
 		OpenGLShader* shader = GetShader("SolidColor");
-		OpenGLDetachedMesh* cubeMeshPlayer = AssetManager::GetCubeMesh();
+		OpenGLDetachedMesh* cubeMesh = AssetManager::GetCubeMesh();
 
 		glEnable(GL_DEPTH_TEST);
 		if (Camera::GetInstance().GetCameraMode() == CameraMode::FIRST_PERSON) {
@@ -171,8 +171,8 @@ namespace OpenGLRenderer {
 		shader->SetMat4("projection", Camera::GetInstance().GetProjectionMatrix());
 		shader->SetMat4("model", player.to_mat4());
 
-		glBindVertexArray(cubeMeshPlayer->GetVAO());
-		glDrawElements(GL_TRIANGLES, cubeMeshPlayer->GetIndexCount(), GL_UNSIGNED_INT, 0);
+		glBindVertexArray(cubeMesh->GetVAO());
+		glDrawElements(GL_TRIANGLES, cubeMesh->GetIndexCount(), GL_UNSIGNED_INT, 0);
 	}
 
 	OpenGLCubemapView* GetCubemapView(const std::string& name) {

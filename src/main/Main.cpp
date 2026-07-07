@@ -7,6 +7,7 @@
 #include "Camera/Camera.h"
 #include "Core/Scene.hpp"
 #include "Common/Types.h"
+#include "Game/Game.h"
 
 void Init(const std::string& title) {
     OpenGLBackend::Init(title);
@@ -19,17 +20,13 @@ void Init(const std::string& title) {
 }
 
 void Update() {
-    static float deltaTime = 0;
-    static double lastTime = glfwGetTime();
-    double currentTime = glfwGetTime();
-    deltaTime = static_cast<float>(currentTime - lastTime);
-    lastTime = currentTime;
+    Game::Update();
     OpenGLBackend::UpdateTextureBaking();
     Scene::SetMaterials();
     AssetManager::Update();
     Input::Update();
-    Camera::GetInstance().Update(deltaTime);
-    Scene::Update(deltaTime);
+    Camera::GetInstance().Update(Game::GetDeltaTime());
+    Scene::Update(Game::GetDeltaTime());
     if (Input::KeyPressed(GLFW_KEY_ESCAPE)) {
         glfwSetWindowShouldClose(OpenGLBackend::GetWindowPtr(), true);
     }

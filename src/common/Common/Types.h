@@ -1,5 +1,5 @@
 #pragma once
-#include <glm/glm.hpp>
+#include "GlmExp.h"
 #include "Common.h"
 #include <vector>
 #include <iostream>
@@ -48,6 +48,26 @@ struct Transform {
 	}
 };
 
+struct AnimatedTransform {
+	AnimatedTransform() = default;
+	AnimatedTransform(glm::mat4& mat) {
+		glm::vec3 scew;
+		glm::vec4 perspective;
+		glm::decompose(mat, scale, rotation, translation, scew, perspective);
+	}
+
+	glm::mat4 to_mat4() {
+		glm::mat4 m = glm::translate(glm::mat4(1), translation);
+		m *= glm::mat4_cast(glm::quat(rotation));
+		m = glm::scale(m, scale);
+		return m;
+	}
+
+	glm::vec3 translation = glm::vec3(0);
+	glm::quat rotation = glm::quat(1, 0, 0, 0);
+	glm::vec3 scale = glm::vec3(1);
+};
+
 struct RenderItem {
 	glm::mat4 modelMatrix;
 	int meshIndex;
@@ -91,14 +111,14 @@ struct FileInfo {
 	std::string name;
 	std::string ext;
 	std::string dir;
-	std::string GetFileNameWithExtension() {
+	/*std::string GetFileNameWithExtension() {
 		if (ext.length() > 0) {
 			return name + "." + ext;
 		}
 		else {
 			return name;
 		}
-	}
+	}*/
 };
 
 struct QueuedTextureBake {
@@ -125,3 +145,4 @@ struct Resolutions {
 	glm::ivec2 gBuffer;
 	glm::ivec2 finalImage;
 };
+

@@ -4,6 +4,7 @@
 #include "World/Room/Room.hpp"
 #include "Input/Input.h"
 #include "Common/Common.h"
+#include "Camera/Camera.h"
 
 // Redesign scene to struct for new scenes, now i have only 1 scene
 
@@ -98,22 +99,6 @@ namespace Scene {
 		Sofa->SetModel("Sofa_1");
 		Sofa->SetMeshMaterialByMeshName("set3_6", "Sofa_1");
 		Sofa->SetName("Sofa_1");
-
-		AddGameObjects();
-		GameObject* Vergil = &g_gameObjects[g_gameObjects.size() - 1];
-		Vergil->SetPosition(glm::vec3(0.0f, 1.0f, 0.0f));
-		Vergil->SetModel("SDT_Vergil");
-		Vergil->SetMeshMaterialByMeshName("BodyLegs", "CatStatue");
-		Vergil->SetMeshMaterialByMeshName("Hands", "CatStatue");
-		Vergil->SetMeshMaterialByMeshName("Head", "CatStatue");
-		Vergil->SetMeshMaterialByMeshName("Horns", "CatStatue");
-		Vergil->SetMeshMaterialByMeshName("LeftNails", "CatStatue");
-		Vergil->SetMeshMaterialByMeshName("RightNails", "CatStatue");
-		Vergil->SetMeshMaterialByMeshName("Tail", "CatStatue");
-		Vergil->SetMeshMaterialByMeshName("Wings", "CatStatue");
-		/*Vergil->SetMeshColorByMeshName("ScabbardLeft", LIGHT_BLUE);
-		Vergil->SetMeshColorByMeshName("ScabbardRight", LIGHT_BLUE);*/
-		Vergil->SetName("SDT_Vergil");
 
 		AddGameObjects();
 		GameObject* Lattern = &g_gameObjects[g_gameObjects.size() - 1];

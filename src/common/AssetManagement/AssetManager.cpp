@@ -10,6 +10,7 @@
 namespace AssetManager {
 	// Asset parts
 	std::vector<Model> g_models;
+	std::vector<Animation> g_animations;
 	std::vector<OpenGLDetachedMesh> g_meshes;
 	std::vector<Texture> g_textures;
 	std::vector<Material> g_materials;
@@ -21,14 +22,7 @@ namespace AssetManager {
 	std::vector<Vertex> g_vertices;
 	std::vector<uint32_t> g_indices;
 
-	// Models
-	void LoadModelsAsync();
-
 	// Textures
-	void LoadTextureMinimum();
-	void LoadTexturesAsync();
-	void LoadTexture(Texture* texture);
-	void LoadPendingTexturesAsync();
 	void CompressMissingDDSTexutres();
 
 	// Materials
@@ -64,6 +58,7 @@ namespace AssetManager {
 	██  ██  ██ ██    ██ ██   ██ ██      ██           ██
 	██      ██  ██████  ██████  ███████ ███████ ███████ */
 
+	// TODO: Split this into new module
 	void LoadModelsAsync() {
 		for (FileInfo& fileInfo : Util::IterateDirectory("models", { "obj", "fbx" })) {
 			Model& model = g_models.emplace_back();
@@ -204,6 +199,7 @@ namespace AssetManager {
 	██  ██  ██ ██           ██ ██   ██ ██           ██
 	██      ██ ███████ ███████ ██   ██ ███████ ███████*/
 
+	// TODO: Split this into new module
 	int CreateMesh(const std::string& name, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices, glm::vec3 aabbMin, glm::vec3 aabbMax) {
 		OpenGLDetachedMesh& mesh = g_meshes.emplace_back();
 		mesh.SetName(name);
@@ -300,6 +296,7 @@ namespace AssetManager {
 	   ██    ██       ██ ██     ██    ██    ██ ██   ██ ██           ██
 	   ██    ███████ ██   ██    ██     ██████  ██   ██ ███████ ███████*/
 
+	// TODO: Split this into new module
 	void LoadTextureMinimum() {
 		for (FileInfo& fileInfo : Util::IterateDirectory("textures/load_at_init/uncompressed", { "png", "jpg" })) {
 			Texture& texture = g_textures.emplace_back();
@@ -445,6 +442,7 @@ namespace AssetManager {
 	██  ██  ██ ██   ██    ██    ██      ██   ██ ██ ██   ██ ██           ██
 	██      ██ ██   ██    ██    ███████ ██   ██ ██ ██   ██ ███████ ███████*/
 
+	// TODO: Split this into new module
 	bool IsAlbedo(const FileInfo& fileInfo) {
 		if (fileInfo.name.size() >= 4 && fileInfo.name.substr(fileInfo.name.size() - 4) == "_ALB") {
 			return true;
@@ -520,5 +518,74 @@ namespace AssetManager {
 	Material* GetDefaultMaterial() {
 		int index = GetMaterialIndex("Default");
 		return GetMaterialByIndex(index);
+	}
+
+	/*
+	 █████  ███    ██ ██ ███    ███  █████  ████████ ██  ██████  ███    ██ ███████ 
+	██   ██ ████   ██ ██ ████  ████ ██   ██    ██    ██ ██    ██ ████   ██ ██      
+	███████ ██ ██  ██ ██ ██ ████ ██ ███████    ██    ██ ██    ██ ██ ██  ██ ███████ 
+	██   ██ ██  ██ ██ ██ ██  ██  ██ ██   ██    ██    ██ ██    ██ ██  ██ ██      ██ 
+	██   ██ ██   ████ ██ ██      ██ ██   ██    ██    ██  ██████  ██   ████ ███████        
+	*/
+
+	// TODO: Split this into new module
+//#include <assimp/Importer.hpp>
+//#include <assimp/scene.h>
+//#include <assimp/postprocess.h>
+
+	void LoadPendingAnimationsAsync() {
+		for (Animation& anim : GetAnimations()) {
+			if (anim.GetLoadingState() == LoadingState::LOADING_COMPLETE) {
+
+			}
+		}
+	}
+
+	void LoadAnimations(Animation* animation) {
+		/*const FileInfo& fileInfo = animation->GetFileInfo();
+
+		aiScene* m_pAnimationScene;
+		Assimp::Importer m_AnimationImporter;
+
+		const aiScene* tempAnimScene = m_AnimationImporter.ReadFile(fileInfo.path.c_str(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs);
+
+		if (!tempAnimScene) {
+			std::cout << "Could not load " << fileInfo.path << "\n";
+			return;
+		}
+
+		m_pAnimationScene = new aiScene(*tempAnimScene);
+		if (m_pAnimationScene) {
+			if (m_pAnimationScene->mNumAnimations == 0) {
+				std::cout << animation->GetName() << " has zero animation\n";
+				return;
+			}
+			else {
+				animation->m_duration = (float)m_pAnimationScene->mAnimations[0]->mDuration;
+				animation->m_ticksPerSec = (float)m_pAnimationScene->mAnimations[0]->mTicksPerSecond;
+			}
+		}
+		else {
+			std::cout << "Failed parsing " << fileInfo.path << ": " << m_AnimationImporter.GetErrorString();
+		}*/
+	}
+
+	std::vector<Animation>& GetAnimations() {
+		std::vector<Animation> anim;
+		return anim;
+	}
+
+	Animation* GetAnimationByName(const std::string& name) {
+		Animation* dummy;
+		return dummy;
+	}
+
+	Animation* GetAnimationByIndex(int index) {
+		Animation* dummy;
+		return dummy;
+	}
+
+	int GetAnimationIndexByName(const std::string& name) {
+		return 0;
 	}
 }
