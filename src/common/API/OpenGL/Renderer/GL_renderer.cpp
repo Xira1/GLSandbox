@@ -77,16 +77,11 @@ namespace OpenGLRenderer {
 		g_shaders["CloudsPostProcess"] = OpenGLShader({ "GL_screen.vert", "GL_clouds_post.frag" });
 		g_shaders["PostProcessing"] = OpenGLShader({ "GL_screen.vert", "GL_post_processing.frag" });
 
-		std::cout << "\n\nShaders load successfully\n";
+		std::cout << "\nShaders load successfully\n";
 	}
 	
 	void RenderFrame() {
-		OpenGLFrameBuffer& gBuffer = g_frameBuffers["GBuffer"];
-		OpenGLFrameBuffer& finalImageBuffer = g_frameBuffers["FinalImage"];
-
 		glDisable(GL_DITHER);
-
-		//CloudsPass();
 
 		ClearRenderTargets();
 
@@ -95,11 +90,43 @@ namespace OpenGLRenderer {
 		RenderLightning();
 		RenderPlayer();
 
-		OpenGLRenderer::BlitFrameBuffer(&gBuffer, &finalImageBuffer, "FinalLighting", "Color", GL_COLOR_BUFFER_BIT, GL_LINEAR);
-		OpenGLRenderer::BlitToDefaultFrameBuffer(&gBuffer, "BaseColor", GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		//CloudsPass();
+		PostProcessPass();
 
 		glfwSwapBuffers(OpenGLBackend::GetWindowPtr());
 		glfwPollEvents();
+	}
+
+	void PostProcessPass() {
+		OpenGLShader* shader = GetShader("PostProcessing");
+		OpenGLFrameBuffer* gBuffer = GetFrameBuffer("GBuffer");
+		OpenGLFrameBuffer* cloudBuffer = GetFrameBuffer("CloudBuffer");
+		OpenGLTextureSet* cloudSet = GetTextureSet("CloudSet");
+
+		if (!shader || !gBuffer || !cloudSet) {
+			if (gBuffer) {
+				BlitToDefaultFrameBuffer(gBuffer, "BaseColor", GL_COLOR_BUFFER_BIT, GL_NEAREST);
+			}
+			return;
+		}
+
+		GLuint cloudTexture = cloudBuffer->GetColorAttachmentHandleByIndex(0);
+		if (cloudTexture == 0) {
+			cloudTexture = cloudSet->GetColorAttachmentTextureByIndex(0);
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, OpenGLBackend::GetWindowWidth(), OpenGLBackend::GetWindowHeight());
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
+
+		shader->Use();
+		shader->SetSampler2D("screenTexture", gBuffer->GetColorAttachmentHandleByName("BaseColor"), 0);
+		shader->SetSampler2D("cloudTEX", cloudTexture, 1);
+		shader->SetSampler2D("depthTex", gBuffer->GetDepthAttachmentHandle(), 2);
+		shader->SetVec2("resolution", glm::vec2(OpenGLBackend::GetWindowWidth(), OpenGLBackend::GetWindowHeight()));
+
+		DrawQuad();
 	}
 
 	void ClearRenderTargets() {

@@ -33,6 +33,7 @@ namespace OpenGLRenderer {
 
 	void InitClouds();
 	void CloudsPass();
+	void PostProcessPass();
 
 	// Utils
 	OpenGLCubemapView* GetCubemapView(const std::string& name);

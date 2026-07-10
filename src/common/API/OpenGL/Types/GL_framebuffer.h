@@ -5,7 +5,7 @@
 #include "Common/Common.h"
 
 struct ColorAttachment {
-    const char* name = "undefined";
+    std::string name = "undefined";
     GLuint handle = 0;
     GLenum internalFormat = 0;;
     GLenum format = 0;

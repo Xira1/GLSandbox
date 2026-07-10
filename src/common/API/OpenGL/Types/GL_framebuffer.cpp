@@ -1,5 +1,6 @@
 #include "GL_framebuffer.h"
 #include "../GLUtil/GL_utils.hpp"
+#include <string>
 
 bool OpenGLFrameBuffer::StrCmp(const char* queryA, const char* queryB) {
     return std::strcmp(queryA, queryB) == 0;
@@ -75,9 +76,7 @@ void OpenGLFrameBuffer::CreateDepthAttachment(GLenum internalFormat, GLenum minF
 
 void OpenGLFrameBuffer::CreateColorArray(int count, GLenum internalFormat) {
     for (int i = 0; i < count; ++i) {
-        char name[32];
-        sprintf_s(name, "tex_%d", i);
-        CreateAttachment(name, internalFormat);
+        CreateAttachment(("tex_" + std::to_string(i)).c_str(), internalFormat);
     }
 }
 
@@ -108,7 +107,7 @@ void OpenGLFrameBuffer::DrawBuffers(std::vector<const char*> attachmentNames) {
 
 void OpenGLFrameBuffer::DrawBuffer(const char* attachmentName) {
     for (int i = 0; i < m_colorAttachments.size(); i++) {
-        if (StrCmp(attachmentName, m_colorAttachments[i].name)) {
+        if (StrCmp(attachmentName, m_colorAttachments[i].name.c_str())) {
             glDrawBuffer(GL_COLOR_ATTACHMENT0 + i);
             return;
         }
@@ -117,7 +116,7 @@ void OpenGLFrameBuffer::DrawBuffer(const char* attachmentName) {
 
 void OpenGLFrameBuffer::ClearAttachment(const char* attachmentName, GLfloat r, GLfloat g, GLfloat b, GLfloat a) {
     for (int i = 0; i < m_colorAttachments.size(); i++) {
-        if (StrCmp(attachmentName, m_colorAttachments[i].name)) {
+        if (StrCmp(attachmentName, m_colorAttachments[i].name.c_str())) {
             GLuint texture = m_colorAttachments[i].handle;
             GLenum internalFormat = m_colorAttachments[i].internalFormat;
             GLenum format = m_colorAttachments[i].format;
@@ -143,7 +142,7 @@ void OpenGLFrameBuffer::Resize(int width, int height) {
         glTextureParameteri(colorAttachment.handle, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTextureParameteri(colorAttachment.handle, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glNamedFramebufferTexture(m_handle, GL_COLOR_ATTACHMENT0 + static_cast<GLenum>(i), colorAttachment.handle, 0);
-        std::string debugLabel = "Texture (FBO: " + std::string(m_name) + " Tex: " + std::string(colorAttachment.name) + ")";
+        std::string debugLabel = "Texture (FBO: " + std::string(m_name) + " Tex: " + colorAttachment.name + ")";
         glObjectLabel(GL_TEXTURE, colorAttachment.handle, static_cast<GLsizei>(debugLabel.length()), debugLabel.c_str());
     }
 
@@ -192,7 +191,7 @@ int OpenGLFrameBuffer::GetColorAttachmentCount() const {
 
 GLuint OpenGLFrameBuffer::GetColorAttachmentHandleByName(const char* name) const {
     for (int i = 0; i < m_colorAttachments.size(); i++) {
-        if (StrCmp(name, m_colorAttachments[i].name)) {
+        if (StrCmp(name, m_colorAttachments[i].name.c_str())) {
             return m_colorAttachments[i].handle;
         }
     }
@@ -206,7 +205,7 @@ GLuint OpenGLFrameBuffer::GetDepthAttachmentHandle() const {
 
 GLenum OpenGLFrameBuffer::GetColorAttachmentSlotByName(const char* name) const {
     for (int i = 0; i < m_colorAttachments.size(); i++) {
-        if (StrCmp(name, m_colorAttachments[i].name)) {
+        if (StrCmp(name, m_colorAttachments[i].name.c_str())) {
             return GL_COLOR_ATTACHMENT0 + i;
         }
     }

@@ -82,10 +82,10 @@ namespace OpenGLRenderer {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, 1024, 1024, 0, GL_RGBA, GL_FLOAT, NULL);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 		}
 
-		glBindImageTexture(0, createInfo.weatherTex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+		glBindImageTexture(0, createInfo.weatherTex, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8);
 
 		weatherShader->Use();
 		glDispatchCompute(INT_CEIL(1024, 8), INT_CEIL(1024, 8), 1);
@@ -99,6 +99,11 @@ namespace OpenGLRenderer {
 		OpenGLShader* cloudsPPShader = GetShader("CloudsPostProcess");
 		OpenGLTextureSet* cloudSet = GetTextureSet("CloudSet");
 		OpenGLFrameBuffer* cloudBuffer = GetFrameBuffer("CloudBuffer");
+		OpenGLFrameBuffer* gBuffer = GetFrameBuffer("GBuffer");
+
+		if (!cloudsShader || !cloudSet || !cloudBuffer || !gBuffer) {
+			return;
+		}
 		
 		for (int i = 0; i < cloudSet->GetNTexturesCount(); ++i) {
 			glBindImageTexture(i, cloudSet->GetColorAttachmentTextureByIndex(i), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
@@ -134,19 +139,24 @@ namespace OpenGLRenderer {
 		cloudsShader->SetSampler3D("cloud", createInfo.perlinTex, 0);
 		cloudsShader->SetSampler3D("worley32", createInfo.worley32, 1);
 		cloudsShader->SetSampler2D("weatherTex", createInfo.weatherTex, 2);
-		//cloudsShader->SetSampler2D("depthMap", gBuffer->GetDepthAttachmentHandle(), 3);
+		cloudsShader->SetSampler2D("depthMap", gBuffer->GetDepthAttachmentHandle(), 3);
 
 		glDispatchCompute(INT_CEIL(1920, 16), INT_CEIL(1080, 16), 1);
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
-		if (createInfo.postProcess) {
+		if (createInfo.postProcess && cloudsPPShader) {
 			cloudBuffer->Bind();
-			
+			cloudBuffer->SetViewport();
+			cloudBuffer->DrawBuffer("tex_0");
+
+			glDisable(GL_DEPTH_TEST);
+			glDisable(GL_BLEND);
+
 			cloudsPPShader->Use();
 
 			cloudsPPShader->SetSampler2D("clouds", cloudSet->GetColorAttachmentTextureByIndex(0), 0);
 			cloudsPPShader->SetSampler2D("emissions", cloudSet->GetColorAttachmentTextureByIndex(1), 1);
-			//cloudsPPShader->SetSampler2D("depthMap", gBuffer->GetDepthAttachmentHandle(), 2);
+			cloudsPPShader->SetSampler2D("depthMap", gBuffer->GetDepthAttachmentHandle(), 2);
 
 			cloudsPPShader->SetVec2("cloudRenderResolution", glm::vec2(1920, 1080));
 			cloudsPPShader->SetVec2("resolution", glm::vec2(OpenGLBackend::GetWindowWidth(), OpenGLBackend::GetWindowHeight()));
@@ -170,10 +180,10 @@ namespace OpenGLRenderer {
 			cloudsPPShader->SetFloat("lightDotCameraFront", lightDotCameraFront);
 
 			cloudsPPShader->SetFloat("time", glfwGetTime());
+
+			DrawQuad();
 		}
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		DrawQuad();
     }
 }

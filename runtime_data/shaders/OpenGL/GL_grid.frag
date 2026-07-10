@@ -58,4 +58,5 @@ void main() {
     vec3 finalColor = mix(colorSmall.rgb, colorLarge.rgb, step(colorSmall.a, colorLarge.a));
 
     FragColor = vec4(finalColor, finalAlpha);
+    gl_FragDepth = 0.9999;
 }

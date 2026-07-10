@@ -7,8 +7,9 @@ namespace OpenGLRenderer {
 		OpenGLCubemapView* skyboxCubemapView = GetCubemapView("SkyboxNightSky");
 		OpenGLDetachedMesh* mesh = AssetManager::GetCubeMesh();
 		
-		/*gBuffer->Bind();
-		gBuffer->DrawBuffers({ "FinalLighting", "WorldPosition" });*/
+		gBuffer->Bind();
+		gBuffer->SetViewport();
+		gBuffer->DrawBuffers({ "FinalLighting", "WorldPosition" });
 		shader->Use();
 
 		SetRasterizerState("Skybox");

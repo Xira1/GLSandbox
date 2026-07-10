@@ -5,16 +5,18 @@ namespace OpenGLRenderer {
 		OpenGLShader* shader = GetShader("Grid");
 		OpenGLFrameBuffer* gBuffer = GetFrameBuffer("GBuffer");
 
-		/*gBuffer->Bind();
+		gBuffer->Bind();
 		gBuffer->SetViewport();
-		gBuffer->DrawBuffers({ "BaseColor" });*/
+		gBuffer->DrawBuffer("BaseColor");
 		shader->Use();
 
 		SetRasterizerState("Grid");
 
-		glBindVertexArray(OpenGLBackend::GetVertexDataVAO());
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_ALWAYS);
+		glDepthMask(GL_FALSE); // Change to true if want grid
 
-		glDepthMask(GL_FALSE);
+		glBindVertexArray(OpenGLBackend::GetVertexDataVAO());
 
 		glm::mat4 invViewProj = glm::inverse(Camera::GetInstance().GetProjectionMatrix() * Camera::GetInstance().GetViewMatrixPlayer());
 
